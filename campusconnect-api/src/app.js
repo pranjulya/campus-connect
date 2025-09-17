@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
   res.send('Hello from CampusConnect API!');
 });
 
+// Routes 
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/courses/:courseId/assignments', assignmentRoutes);
