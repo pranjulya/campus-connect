@@ -52,7 +52,7 @@ describe('Auth API', () => {
       });
 
     expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty('msg', 'User already exists');
+    expect(res.body).toHaveProperty('msg', 'User already exists!');
   });
 
   it('should login a registered user', async () => {
