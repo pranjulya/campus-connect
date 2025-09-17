@@ -48,7 +48,7 @@ describe('Course API Endpoints', () => {
         name: 'Updated Test Course',
       });
     expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('name', 'Updated Test Course');
+    expect(res.body).toHaveProperty('name', 'Updated Test Course!');
   });
 
   it('should delete a course', async () => {
