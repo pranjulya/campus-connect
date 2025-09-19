@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.routes.js';
 import courseRoutes from './routes/course.routes.js';
 import assignmentRoutes from './routes/assignment.routes.js';
+const { globalErrorHandler } = require('./middleware/error.middleware');
 
 const app = express();
 
@@ -19,5 +20,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/courses/:courseId/assignments', assignmentRoutes);
+
+// Global error handling middleware
+app.use(globalErrorHandler);
 
 export default app;
