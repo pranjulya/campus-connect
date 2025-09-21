@@ -69,8 +69,10 @@ campusconnect-api/
    ```
 
 3. Set up environment variables:
-   Create a `.env` file in the root directory and add the following variables:
+   Create a `.env` file in the root directory (a template is provided in `.env.example`).
+   These variables are validated at startup using [envalid](https://github.com/af/envalid):
    ```env
+   NODE_ENV=development
    PORT=3000
    MONGO_URI=<your-mongodb-connection-string>
    JWT_SECRET=<your-jwt-secret>

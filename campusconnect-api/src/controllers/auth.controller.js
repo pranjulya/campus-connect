@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import env from '../config/env.js';
 
 export const register = async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -29,7 +30,7 @@ export const register = async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET,
+      env.JWT_SECRET,
       { expiresIn: 3600 },
       (err, token) => {
         if (err) throw err;
@@ -66,7 +67,7 @@ export const login = async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET,
+      env.JWT_SECRET,
       { expiresIn: 3600 },
       (err, token) => {
         if (err) throw err;
