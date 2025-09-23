@@ -1,5 +1,6 @@
 import Assignment from '../models/Assignment.js';
 import Course from '../models/Course.js';
+import logger from '../config/logger.js';
 
 export const createAssignment = async (req, res) => {
     try {
@@ -26,7 +27,7 @@ export const createAssignment = async (req, res) => {
         await assignment.save();
         res.status(201).json(assignment);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error creating assignment', { err });
         res.status(500).send('Server error');
     }
 };
@@ -36,7 +37,7 @@ export const getAssignments = async (req, res) => {
         const assignments = await Assignment.find({ course: req.params.courseId });
         res.json(assignments);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error retrieving assignments', { err });
         res.status(500).send('Server error');
     }
 };
@@ -49,7 +50,7 @@ export const getAssignment = async (req, res) => {
         }
         res.json(assignment);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error retrieving assignment', { err });
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Assignment not found' });
         }
@@ -76,7 +77,7 @@ export const updateAssignment = async (req, res) => {
 
         res.json(assignment);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error updating assignment', { err });
         res.status(500).send('Server error');
     }
 };
@@ -99,7 +100,7 @@ export const deleteAssignment = async (req, res) => {
 
         res.json({ msg: 'Assignment removed' });
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error deleting assignment', { err });
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Assignment not found' });
         }

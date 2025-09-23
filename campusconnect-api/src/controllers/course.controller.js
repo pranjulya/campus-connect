@@ -1,5 +1,6 @@
 import Course from '../models/Course.js';
 import User from '../models/User.js';
+import logger from '../config/logger.js';
 
 export const createCourse = async (req, res) => {
     try {
@@ -15,7 +16,7 @@ export const createCourse = async (req, res) => {
         await course.save();
         res.status(201).json(course);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error creating course', { err });
         res.status(500).send('Server error');
     }
 };
@@ -25,7 +26,7 @@ export const getCourses = async (req, res) => {
         const courses = await Course.find().populate('professor', ['name', 'email']);
         res.json(courses);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error retrieving courses', { err });
         res.status(500).send('Server error');
     }
 };
@@ -38,7 +39,7 @@ export const getCourse = async (req, res) => {
         }
         res.json(course);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error retrieving course', { err });
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Course not found' });
         }
@@ -64,7 +65,7 @@ export const updateCourse = async (req, res) => {
 
         res.json(course);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error updating course', { err });
         res.status(500).send('Server error');
     }
 };
@@ -86,7 +87,7 @@ export const deleteCourse = async (req, res) => {
 
         res.json({ msg: 'Course removed' });
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error deleting course', { err });
         if (err.kind === 'ObjectId') {
             return res.status(404).json({ msg: 'Course not found' });
         }
@@ -112,7 +113,7 @@ export const enrollCourse = async (req, res) => {
 
         res.json(course.students);
     } catch (err) {
-        console.error(err.message);
+        logger.error('Error enrolling in course', { err });
         res.status(500).send('Server error');
     }
 };

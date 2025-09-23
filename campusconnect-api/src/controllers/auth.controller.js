@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import env from '../config/env.js';
+import logger from '../config/logger.js';
 
 export const register = async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -38,7 +39,7 @@ export const register = async (req, res) => {
       }
     );
   } catch (err) {
-    console.error(err.message);
+    logger.error('Error registering user', { err });
     res.status(500).send('Server error');
   }
 };
@@ -75,7 +76,7 @@ export const login = async (req, res) => {
       }
     );
   } catch (err) {
-    console.error(err.message);
+    logger.error('Error logging in user', { err });
     res.status(500).send('Server error');
   }
 };
