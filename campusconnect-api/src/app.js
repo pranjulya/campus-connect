@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.routes.js';
 import courseRoutes from './routes/course.routes.js';
 import assignmentRoutes from './routes/assignment.routes.js';
-const { globalErrorHandler } = require('./middleware/error.middleware');
+import { globalErrorHandler } from './middleware/error.middleware.js';
 
 const app = express();
 
