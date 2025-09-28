@@ -1,121 +1,39 @@
-# Campus Connect API
+# Project Details
 
-Campus Connect is a platform designed to streamline communication and collaboration between students, professors, and administrators in an academic environment. This API serves as the backend for the Campus Connect application.
+## Overview
 
-## Features Implemented
+This document provides a high-level overview of the Campus Connect project, including its goals, scope, and key features.
 
-### Authentication
-- User registration and login functionality.
-- JWT-based authentication for secure access to protected routes.
-- Middleware to protect routes and verify user roles.
+## Goals
 
-### User Roles
-- Support for different user roles: `student`, `professor`, and `admin`.
+- To create a centralized platform for communication and collaboration between students, professors, and administrators.
+- To streamline academic processes such as course management, assignment submission, and grading.
+- To provide a user-friendly and intuitive interface for all users.
 
-### Courses
-- CRUD operations for courses.
-- Students can enroll in courses.
-- Professors can create and manage courses.
+## Scope
 
-### Assignments
-- Professors can create assignments for their courses.
-- Students can view assignments for the courses they are enrolled in.
+The project will include the following key features:
 
-### API Documentation
-- OpenAPI specification available in `openapi.yaml`.
+- User authentication and role-based access control.
+- Course and assignment management.
+- A notification system for important updates and deadlines.
+- A submission system for assignments.
 
-## Project Structure
-```
-LICENSE
-campusconnect-api/
-  openapi.yaml
-  package.json
-  README.md
-  src/
-    app.js
-    server.js
-    config/
-      db.js
-    controllers/
-      assignment.controller.js
-      auth.controller.js
-      course.controller.js
-    middleware/
-      auth.middleware.js
-    models/
-      Assignment.js
-      Course.js
-      User.js
-    routes/
-      assignment.routes.js
-      auth.routes.js
-      course.routes.js
-  tests/
-    auth.test.js
-    course.test.js
-```
+## Timeline
 
-## Installation
+- **Phase 1 (In Progress):** Core features such as user authentication, course management, and assignment creation.
+- **Phase 2 (Planned):** Assignment submission, grading, and a notification system.
+- **Phase 3 (Future):** Analytics, reporting, and integration with other campus systems.
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd campusconnect-api
-   ```
+## Team
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+- **Project Manager:** [Pranjulya Bajpai]
+- **Lead Developer:** [Pranjulya Bajpai]
+- **Backend Developer:** [Pranjulya Bajpai]
+- **Frontend Developer:** [N/A]
+- **QA Engineer:** [N/A]
+- **Database Administrator:** [N/A]
 
-3. Set up environment variables:
-   Create a `.env` file in the root directory and add the following variables:
-   ```env
-   PORT=3000
-   MONGO_URI=<your-mongodb-connection-string>
-   JWT_SECRET=<your-jwt-secret>
-   ```
-
-4. Start the server:
-   ```bash
-   npm start
-   ```
-
-## Testing
-
-Run the test suite using:
-```bash
-npm test
-```
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register a new user.
-- `POST /api/auth/login` - Login and receive a JWT.
-
-### Courses
-- `GET /api/courses` - Get all courses.
-- `POST /api/courses` - Create a new course (professors only).
-- `PUT /api/courses/:id` - Update a course (professors only).
-- `DELETE /api/courses/:id` - Delete a course (professors only).
-
-### Assignments
-- `GET /api/assignments` - Get all assignments for a course.
-- `POST /api/assignments` - Create a new assignment (professors only).
-
-## Contributing
-
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Commit your changes and push to your branch.
-4. Submit a pull request.
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
-GitHub Copilot: Of course. Here's a step-by-step explanation of the repository in simple terms:
 
 ### How the Repository Works: A Step-by-Step Guide
 
