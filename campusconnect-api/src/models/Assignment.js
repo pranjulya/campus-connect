@@ -18,6 +18,9 @@ const assignmentSchema = new mongoose.Schema({
   },
 });
 
+// Compound index accelerates per-course queries and optional due date sorting
+assignmentSchema.index({ course: 1, dueDate: 1 });
+
 const Assignment = mongoose.model('Assignment', assignmentSchema);
 
 export default Assignment;
