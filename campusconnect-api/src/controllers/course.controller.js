@@ -40,7 +40,7 @@ export const updateCourse = async (req, res) => {
 export const deleteCourse = async (req, res) => {
   try {
     await courseService.deleteCourse(req.params.id, req.user.id);
-    res.json({ msg: 'Course removed' });
+    res.json({ msg: 'Course removed successfully' });
   } catch (error) {
     handleControllerError(res, error);
   }
