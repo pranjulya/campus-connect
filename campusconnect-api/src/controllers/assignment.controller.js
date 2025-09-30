@@ -1,108 +1,64 @@
-import Assignment from '../models/Assignment.js';
-import Course from '../models/Course.js';
+import * as assignmentService from '../services/assignment.service.js';
+import handleControllerError from '../utils/controllerErrorHandler.js';
 
 export const createAssignment = async (req, res) => {
-    try {
-        const { title, description, dueDate } = req.body;
-        const courseId = req.params.courseId;
+  try {
+    const assignment = await assignmentService.createAssignment(
+      req.params.courseId,
+      req.user.id,
+      req.body
+    );
 
-        const course = await Course.findById(courseId);
-        if (!course) {
-            return res.status(404).json({ msg: 'Course not found' });
-        }
-
-        // Check if user is the professor of the course
-        if (course.professor.toString() !== req.user.id) {
-            return res.status(401).json({ msg: 'User not authorized' });
-        }
-
-        const assignment = new Assignment({
-            title,
-            description,
-            dueDate,
-            course: courseId
-        });
-
-        await assignment.save();
-        res.status(201).json(assignment);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    res.status(201).json(assignment);
+  } catch (error) {
+    handleControllerError(res, error);
+  }
 };
 
 export const getAssignments = async (req, res) => {
-    try {
-        const assignments = await Assignment.find({ course: req.params.courseId });
-        res.json(assignments);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+  try {
+    const assignments = await assignmentService.getAssignmentsByCourse(
+      req.params.courseId
+    );
+
+    res.json(assignments);
+  } catch (error) {
+    handleControllerError(res, error);
+  }
 };
 
 export const getAssignment = async (req, res) => {
-    try {
-        const assignment = await Assignment.findById(req.params.assignmentId);
-        if (!assignment) {
-            return res.status(404).json({ msg: 'Assignment not found' });
-        }
-        res.json(assignment);
-    } catch (err) {
-        console.error(err.message);
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({ msg: 'Assignment not found' });
-        }
-        res.status(500).send('Server error');
-    }
+  try {
+    const assignment = await assignmentService.getAssignmentById(
+      req.params.assignmentId
+    );
+
+    res.json(assignment);
+  } catch (error) {
+    handleControllerError(res, error);
+  }
 };
 
 export const updateAssignment = async (req, res) => {
-    try {
-        const { title, description, dueDate } = req.body;
-        let assignment = await Assignment.findById(req.params.assignmentId);
+  try {
+    const assignment = await assignmentService.updateAssignment(
+      req.params.assignmentId,
+      req.user.id,
+      req.body
+    );
 
-        if (!assignment) {
-            return res.status(404).json({ msg: 'Assignment not found' });
-        }
-
-        const course = await Course.findById(assignment.course);
-        // Check if user is the professor of the course
-        if (course.professor.toString() !== req.user.id) {
-            return res.status(401).json({ msg: 'User not authorized' });
-        }
-
-        assignment = await Assignment.findByIdAndUpdate(req.params.assignmentId, { title, description, dueDate }, { new: true });
-
-        res.json(assignment);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
+    res.json(assignment);
+  } catch (error) {
+    handleControllerError(res, error);
+  }
 };
 
 export const deleteAssignment = async (req, res) => {
-    try {
-        const assignment = await Assignment.findById(req.params.assignmentId);
+  try {
+    await assignmentService.deleteAssignment(req.params.assignmentId, req.user.id);
 
-        if (!assignment) {
-            return res.status(404).json({ msg: 'Assignment not found' });
-        }
-
-        const course = await Course.findById(assignment.course);
-        // Check if user is the professor of the course
-        if (course.professor.toString() !== req.user.id) {
-            return res.status(401).json({ msg: 'User not authorized' });
-        }
-
-        await Assignment.findByIdAndDelete(req.params.assignmentId);
-
-        res.json({ msg: 'Assignment removed' });
-    } catch (err) {
-        console.error(err.message);
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({ msg: 'Assignment not found' });
-        }
-        res.status(500).send('Server error');
-    }
+    res.json({ msg: 'Assignment removed' });
+  } catch (error) {
+    handleControllerError(res, error);
+  }
 };
