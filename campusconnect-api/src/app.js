@@ -7,7 +7,8 @@ import xss from 'xss-clean';
 import authRoutes from './routes/auth.routes.js';
 import courseRoutes from './routes/course.routes.js';
 import assignmentRoutes from './routes/assignment.routes.js';
-import { globalErrorHandler } from './middleware/error.middleware.js';
+import logger from './config/logger.js';
+const { globalErrorHandler } = require('./middleware/error.middleware');
 
 const app = express();
 
@@ -23,6 +24,12 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+app.use(
+  morgan('combined', {
+    stream: logger.stream,
+  })
+);
 
 app.get('/', (req, res) => {
   res.send('Hello from CampusConnect API!');

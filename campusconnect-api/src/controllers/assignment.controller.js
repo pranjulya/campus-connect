@@ -51,6 +51,7 @@ export const updateAssignment = async (req, res) => {
   } catch (error) {
     handleControllerError(res, error);
   }
+
 };
 
 export const deleteAssignment = async (req, res) => {
@@ -61,4 +62,5 @@ export const deleteAssignment = async (req, res) => {
   } catch (error) {
     handleControllerError(res, error);
   }
+}
 };
