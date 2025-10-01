@@ -1,4 +1,4 @@
-class AppError extends Error {
+export class AppError extends Error {
   constructor(message, statusCode) {
     super(message);
     this.statusCode = statusCode;
@@ -9,7 +9,7 @@ class AppError extends Error {
   }
 }
 
-const globalErrorHandler = (err, req, res, next) => {
+export const globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
@@ -18,5 +18,3 @@ const globalErrorHandler = (err, req, res, next) => {
     message: err.message,
   });
 };
-
-module.exports = { AppError, globalErrorHandler };

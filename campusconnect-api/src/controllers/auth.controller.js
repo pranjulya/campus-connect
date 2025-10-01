@@ -1,3 +1,5 @@
+import * as authService from '../services/auth.service.js';
+import handleControllerError from '../utils/controllerErrorHandler.js';
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -5,9 +7,11 @@ import env from '../config/env.js';
 import logger from '../config/logger.js';
 
 export const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
-
   try {
+    const authResponse = await authService.register(req.body);
+    res.json(authResponse);
+  } catch (error) {
+    handleControllerError(res, error);
     let user = await User.findOne({ email });
 
     if (user) {
@@ -45,9 +49,11 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const authResponse = await authService.login(req.body);
+    res.json(authResponse);
+  } catch (error) {
+    handleControllerError(res, error);
     let user = await User.findOne({ email });
 
     if (!user) {

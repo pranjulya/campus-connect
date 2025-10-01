@@ -20,6 +20,12 @@ const courseSchema = new mongoose.Schema({
   ],
 });
 
+// Index courses by professor to speed up filtering by teaching user
+courseSchema.index({ professor: 1 });
+
+// Support future lookups by course name (e.g., auto-complete/search)
+courseSchema.index({ name: 1 });
+
 const Course = mongoose.model('Course', courseSchema);
 
 export default Course;
