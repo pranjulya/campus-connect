@@ -166,3 +166,177 @@ paths:
           description: Assignment created successfully
         '403':
           description: Forbidden
+
+  /api/courses/{courseId}/assignments/{assignmentId}/submissions:
+    get:
+      summary: List submissions for an assignment
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of submissions
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      summary: Submit work for an assignment
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                attachments:
+                  type: array
+                  items:
+                    type: string
+              anyOf:
+                - required: ['content']
+                - required: ['attachments']
+      responses:
+        '201':
+          description: Submission created successfully
+        '400':
+          description: Invalid submission payload
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}:
+    get:
+      summary: Get a specific submission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Submission retrieved successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Submission not found
+    put:
+      summary: Update an existing submission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                attachments:
+                  type: array
+                  items:
+                    type: string
+              anyOf:
+                - required: ['content']
+                - required: ['attachments']
+      responses:
+        '200':
+          description: Submission updated successfully
+        '400':
+          description: Invalid submission payload
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Submission not found
+
+  /api/courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}/review:
+    patch:
+      summary: Review a submission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grade:
+                  type: number
+                feedback:
+                  type: string
+      responses:
+        '200':
+          description: Submission reviewed successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Submission not found

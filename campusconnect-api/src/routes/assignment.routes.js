@@ -7,6 +7,7 @@ import {
   updateAssignment,
   deleteAssignment,
 } from '../controllers/assignment.controller.js';
+import submissionRoutes from './submission.routes.js';
 
 const router = express.Router({ mergeParams: true });
 
@@ -14,6 +15,9 @@ router
   .route('/')
   .get(getAssignments)
   .post(protect, authorizeRoles('professor'), createAssignment);
+
+router.use('/:assignmentId/submissions', submissionRoutes);
+
 router
   .route('/:assignmentId')
   .get(getAssignment)
