@@ -26,6 +26,12 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+app.use(
+  morgan('combined', {
+    stream: logger.stream,
+  })
+);
+
 app.get('/', (req, res) => {
   res.send('Hello from CampusConnect API!');
 });

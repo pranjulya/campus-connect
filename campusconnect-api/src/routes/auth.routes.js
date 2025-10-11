@@ -1,6 +1,8 @@
 import express from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { register, login } from '../controllers/auth.controller.js';
+import validate from '../middleware/validation.middleware.js';
+import Joi from 'joi';
 
 const router = express.Router();
 
