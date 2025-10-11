@@ -1,5 +1,6 @@
 import AppError from '../utils/appError.js';
 import * as courseRepository from '../repositories/course.repository.js';
+import * as notificationService from './notification.service.js';
 
 const ensureCourseExists = async (courseId) => {
   const course = await courseRepository.findById(courseId);
@@ -17,8 +18,17 @@ const assertProfessorOwnership = (course, userId) => {
   }
 };
 
-export const createCourse = (professorId, { name, description }) =>
-  courseRepository.create({ name, description, professor: professorId });
+export const createCourse = async (professorId, { name, description }) => {
+  const course = await courseRepository.create({
+    name,
+    description,
+    professor: professorId,
+  });
+
+  await notificationService.notifyAllStudentsOfNewCourse(course);
+
+  return course;
+};
 
 export const getCourses = () => courseRepository.findAllWithProfessor();
 
@@ -37,11 +47,21 @@ export const updateCourse = async (courseId, userId, { name, description }) => {
 
   assertProfessorOwnership(course, userId);
 
-  const updatedCourse = await courseRepository.updateById(courseId, { name, description });
+  const updatedCourse = await courseRepository.updateById(courseId, {
+    name,
+    description,
+  });
 
   if (!updatedCourse) {
     throw new AppError('Course not found', 404);
   }
+
+  await notificationService.notifyCourseStudents(updatedCourse, {
+    title: `Course updated: ${updatedCourse.name}`,
+    message: 'Course details have been updated.',
+    type: 'course',
+    course: courseId,
+  });
 
   return updatedCourse;
 };
@@ -52,6 +72,7 @@ export const deleteCourse = async (courseId, userId) => {
   assertProfessorOwnership(course, userId);
 
   await courseRepository.deleteById(courseId);
+  await notificationService.cleanupCourseNotifications(courseId);
 };
 
 export const enrollStudent = async (courseId, studentId) => {
@@ -70,6 +91,13 @@ export const enrollStudent = async (courseId, studentId) => {
   if (!updatedCourse) {
     throw new AppError('Course not found', 404);
   }
+
+  await notificationService.notifyUsers([studentId], {
+    title: `Enrolled in ${updatedCourse.name}`,
+    message: 'You have been enrolled in a new course.',
+    type: 'course',
+    course: courseId,
+  });
 
   return updatedCourse.students;
 };

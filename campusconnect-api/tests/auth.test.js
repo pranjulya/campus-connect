@@ -35,13 +35,11 @@ describe('Auth API', () => {
   });
 
   it('should not register an existing user', async () => {
-    await request(app)
-      .post('/api/auth/register')
-      .send({
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123',
-      });
+    await User.create({
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'password123',
+    });
 
     const res = await request(app)
       .post('/api/auth/register')
@@ -52,7 +50,7 @@ describe('Auth API', () => {
       });
 
     expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty('msg', 'User already exists!');
+    expect(res.body).toHaveProperty('message', 'User already exists');
   });
 
   it('should login a registered user', async () => {
@@ -84,6 +82,6 @@ describe('Auth API', () => {
       });
 
     expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty('msg', 'Invalid credentials');
+    expect(res.body).toHaveProperty('message', 'Invalid credentials');
   });
 });
