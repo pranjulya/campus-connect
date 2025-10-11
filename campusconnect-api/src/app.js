@@ -9,6 +9,7 @@ import courseRoutes from './routes/course.routes.js';
 import assignmentRoutes from './routes/assignment.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
+import { errors } from 'celebrate';
 
 const app = express();
 
@@ -34,6 +35,9 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/courses/:courseId/assignments', assignmentRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+// Celebrate error handler
+app.use(errors());
 
 // Global error handling middleware
 app.use(globalErrorHandler);

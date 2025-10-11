@@ -1,20 +1,12 @@
 import * as authService from '../services/auth.service.js';
-import handleControllerError from '../utils/controllerErrorHandler.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
-export const register = async (req, res) => {
-  try {
-    const authResponse = await authService.register(req.body);
-    res.json(authResponse);
-  } catch (error) {
-    handleControllerError(res, error);
-  }
-};
+export const register = asyncHandler(async (req, res) => {
+  const authResponse = await authService.register(req.body);
+  res.json(authResponse);
+});
 
-export const login = async (req, res) => {
-  try {
-    const authResponse = await authService.login(req.body);
-    res.json(authResponse);
-  } catch (error) {
-    handleControllerError(res, error);
-  }
-};
+export const login = asyncHandler(async (req, res) => {
+  const authResponse = await authService.login(req.body);
+  res.json(authResponse);
+});

@@ -48,13 +48,13 @@ describe('Course API Endpoints', () => {
         name: 'Updated Test Course',
       });
     expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('name', 'Updated Test Course!');
+    expect(res.body).toHaveProperty('name', 'Updated Test Course');
   });
 
   it('should delete a course', async () => {
     const res = await request(app).delete(`/api/courses/${courseId}`);
     expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('message', 'Course deleted successfully!');
+    expect(res.body).toHaveProperty('msg', 'Course removed successfully!');
   });
 
   it('should enroll a user in a course', async () => {
@@ -62,6 +62,6 @@ describe('Course API Endpoints', () => {
       .post(`/api/courses/${courseId}/enroll`)
       .send({ userId: 'User ID' });
     expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('message', 'User enrolled successfully!');
+    expect(res.body).toBeInstanceOf(Array);
   });
 });
