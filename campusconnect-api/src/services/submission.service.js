@@ -65,85 +65,143 @@ const ensureSubmissionBelongsToAssignment = (submission, assignmentId) => {
   }
 };
 
-export const submitAssignment = async (assignmentId, studentId, data) => {
-  const assignment = await Assignment.findById(assignmentId);
-  if (!assignment) {
-    throw new AppError('Assignment not found', 404);
+export const submitAssignment = async (
+  courseId,
+  assignmentId,
+  studentId,
+  payload
+) => {
+  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
+  ensureStudentEnrolled(course, studentId);
+
+  const existingSubmission = await submissionRepository.findByAssignmentAndStudent(
+    assignmentId,
+    studentId
+  );
+
+  if (existingSubmission) {
+    throw new AppError('Submission already exists. Update the existing record instead.', 400);
   }
 
-  const course = await Course.findById(assignment.course);
-  if (!course.students.includes(studentId)) {
-    throw new AppError('You are not enrolled in this course', 403);
-  }
+  const { content, attachments } = validateSubmissionPayload(payload);
 
-  let submission = await Submission.findOne({
+  const submission = await submissionRepository.create({
     assignment: assignmentId,
     student: studentId,
+    content,
+    attachments,
   });
 
-  if (submission) {
-    submission.content = data.content || submission.content;
-    submission.attachments = data.attachments || submission.attachments;
-  } else {
-    submission = new Submission({
-      assignment: assignmentId,
-      student: studentId,
-      ...data,
-    });
-  }
-
-  await submission.save();
-  return submission;
+  return submissionRepository.findById(submission.id);
 };
 
-export const getSubmissions = async (assignmentId, user) => {
+export const getSubmissions = async (courseId, assignmentId, user) => {
+  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
+
+  if (user.role === 'professor') {
+    ensureProfessorOwnership(course, user.id);
+    return submissionRepository.findByAssignmentId(assignmentId);
+  }
+
   if (user.role === 'student') {
-    return await Submission.find({
-      assignment: assignmentId,
-      student: user.id,
-    });
+    ensureStudentEnrolled(course, user.id);
+    const submission = await submissionRepository.findByAssignmentAndStudent(
+      assignmentId,
+      user.id
+    );
+
+    return submission ? [submission] : [];
   }
-  return await Submission.find({ assignment: assignmentId });
+
+  throw new AppError('User role not permitted for this action', 403);
 };
 
-export const getSubmissionById = async (submissionId, user) => {
-  const submission = await Submission.findById(submissionId);
-  if (!submission) {
-    throw new AppError('Submission not found', 404);
+export const getSubmissionById = async (
+  courseId,
+  assignmentId,
+  submissionId,
+  user
+) => {
+  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
+  const submission = await submissionRepository.findById(submissionId);
+  ensureSubmissionBelongsToAssignment(submission, assignmentId);
+
+  if (user.role === 'professor') {
+    ensureProfessorOwnership(course, user.id);
+    return submission;
   }
 
-  if (
-    user.role === 'student' &&
-    submission.student.toString() !== user.id
-  ) {
-    throw new AppError('You are not authorized to view this submission', 403);
+  if (user.role === 'student') {
+    if (submission.student?.toString() !== user.id) {
+      throw new AppError('User not authorized', 401);
+    }
+    ensureStudentEnrolled(course, user.id);
+    return submission;
   }
 
-  return submission;
+  throw new AppError('User role not permitted for this action', 403);
 };
 
-export const reviewSubmission = async (submissionId, professorId, data) => {
-  const submission = await Submission.findById(submissionId).populate({
-    path: 'assignment',
-    populate: {
-      path: 'course',
-    },
+export const updateSubmission = async (
+  courseId,
+  assignmentId,
+  submissionId,
+  studentId,
+  payload
+) => {
+  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
+  ensureStudentEnrolled(course, studentId);
+
+  const submission = await submissionRepository.findById(submissionId);
+  ensureSubmissionBelongsToAssignment(submission, assignmentId);
+
+  if (submission.student?.toString() !== studentId) {
+    throw new AppError('User not authorized', 401);
+  }
+
+  const { content, attachments } = validateSubmissionPayload(payload);
+
+  await submissionRepository.updateById(submissionId, {
+    content,
+    attachments,
+    status: 'submitted',
+    grade: null,
+    feedback: null,
+    reviewedAt: null,
+    reviewedBy: null,
   });
 
-  if (!submission) {
-    throw new AppError('Submission not found', 404);
+  return submissionRepository.findById(submissionId);
+};
+
+export const reviewSubmission = async (
+  courseId,
+  assignmentId,
+  submissionId,
+  professorId,
+  payload
+) => {
+  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
+  ensureProfessorOwnership(course, professorId);
+
+  const submission = await submissionRepository.findById(submissionId);
+  ensureSubmissionBelongsToAssignment(submission, assignmentId);
+
+  const updatePayload = {
+    status: 'reviewed',
+    reviewedAt: new Date(),
+    reviewedBy: professorId,
+  };
+
+  if (Object.prototype.hasOwnProperty.call(payload, 'grade')) {
+    updatePayload.grade = payload.grade;
   }
 
-  if (
-    submission.assignment.course.professor.toString() !== professorId
-  ) {
-    throw new AppError('You are not authorized to review this submission', 403);
+  if (Object.prototype.hasOwnProperty.call(payload, 'feedback')) {
+    updatePayload.feedback = payload.feedback;
   }
 
-  submission.grade = data.grade ?? submission.grade;
-  submission.feedback = data.feedback ?? submission.feedback;
-  submission.status = 'graded';
+  await submissionRepository.updateById(submissionId, updatePayload);
 
-  await submission.save();
-  return submission;
+  return submissionRepository.findById(submissionId);
 };

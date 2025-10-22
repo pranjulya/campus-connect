@@ -340,3 +340,29 @@ paths:
           description: Forbidden
         '404':
           description: Submission not found
+
+  /api/notifications:
+    get:
+      summary: Get notifications for the authenticated user
+      responses:
+        '200':
+          description: List of notifications
+        '401':
+          description: Unauthorized
+
+  /api/notifications/{notificationId}/read:
+    patch:
+      summary: Mark a notification as read
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification updated successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Notification not found

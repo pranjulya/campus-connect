@@ -1,4 +1,5 @@
 import express from 'express';
+import { celebrate, Joi, Segments } from 'celebrate';
 import { protect, authorizeRoles } from '../middleware/auth.middleware.js';
 import {
   createCourse,
@@ -11,17 +12,40 @@ import {
 
 const router = express.Router();
 
+const createCourseSchema = {
+  [Segments.BODY]: Joi.object({
+    name: Joi.string().required(),
+    description: Joi.string(),
+  }),
+};
+
+const updateCourseSchema = {
+  [Segments.PARAMS]: Joi.object({
+    id: Joi.string().hex().length(24).required(),
+  }),
+  [Segments.BODY]: Joi.object({
+    name: Joi.string(),
+    description: Joi.string(),
+  }).min(1),
+};
+
+const courseIdSchema = {
+  [Segments.PARAMS]: Joi.object({
+    id: Joi.string().hex().length(24).required(),
+  }),
+};
+
 router
   .route('/')
   .get(getCourses)
-  .post(protect, authorizeRoles('professor'), createCourse);
+  .post(protect, authorizeRoles('professor'), celebrate(createCourseSchema), createCourse);
 router
   .route('/:id')
-  .get(getCourse)
-  .put(protect, authorizeRoles('professor'), updateCourse)
-  .delete(protect, authorizeRoles('professor'), deleteCourse);
+  .get(celebrate(courseIdSchema), getCourse)
+  .put(protect, authorizeRoles('professor'), celebrate(updateCourseSchema), updateCourse)
+  .delete(protect, authorizeRoles('professor'), celebrate(courseIdSchema), deleteCourse);
 router
   .route('/:id/enroll')
-  .post(protect, authorizeRoles('student'), enrollCourse);
+  .post(protect, authorizeRoles('student'), celebrate(courseIdSchema), enrollCourse);
 
 export default router;

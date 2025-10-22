@@ -1,20 +1,57 @@
 import express from 'express';
-import { protect } from '../middleware/auth.middleware.js';
-import { 
-    createAssignment,
-    getAssignments,
-    getAssignment,
-    updateAssignment,
-    deleteAssignment
- } from '../controllers/assignment.controller.js';
+import { celebrate, Joi, Segments } from 'celebrate';
+import { protect, authorizeRoles } from '../middleware/auth.middleware.js';
+import {
+  createAssignment,
+  getAssignments,
+  getAssignment,
+  updateAssignment,
+  deleteAssignment,
+} from '../controllers/assignment.controller.js';
 import submissionRoutes from './submission.routes.js';
 
 const router = express.Router({ mergeParams: true });
 
-router.route('/').get(getAssignments).post(protect, createAssignment);
+const courseIdParamSchema = {
+  [Segments.PARAMS]: Joi.object({
+    courseId: Joi.string().hex().length(24).required(),
+  }),
+};
 
-router.use('/:assignmentId/submissions', submissionRoutes);
+const assignmentIdParamSchema = {
+  [Segments.PARAMS]: Joi.object({
+    courseId: Joi.string().hex().length(24).required(),
+    assignmentId: Joi.string().hex().length(24).required(),
+  }),
+};
 
-router.route('/:assignmentId').get(getAssignment).put(protect, updateAssignment).delete(protect, deleteAssignment);
+const createAssignmentSchema = {
+  [Segments.BODY]: Joi.object({
+    title: Joi.string().required(),
+    description: Joi.string(),
+    dueDate: Joi.date(),
+  }),
+};
+
+const updateAssignmentSchema = {
+  [Segments.BODY]: Joi.object({
+    title: Joi.string(),
+    description: Joi.string(),
+    dueDate: Joi.date(),
+  }).min(1),
+};
+
+router
+  .route('/')
+  .get(celebrate({ [Segments.PARAMS]: courseIdParamSchema[Segments.PARAMS] }), getAssignments)
+  .post(protect, authorizeRoles('professor'), celebrate(createAssignmentSchema), createAssignment);
+
+router.use('/:assignmentId/submissions', celebrate({ [Segments.PARAMS]: assignmentIdParamSchema[Segments.PARAMS] }), submissionRoutes);
+
+router
+  .route('/:assignmentId')
+  .get(celebrate(assignmentIdParamSchema), getAssignment)
+  .put(protect, authorizeRoles('professor'), celebrate({ ...assignmentIdParamSchema, ...updateAssignmentSchema }), updateAssignment)
+  .delete(protect, authorizeRoles('professor'), celebrate(assignmentIdParamSchema), deleteAssignment);
 
 export default router;
