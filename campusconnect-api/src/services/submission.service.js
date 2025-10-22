@@ -2,6 +2,9 @@ import AppError from '../utils/appError.js';
 import * as submissionRepository from '../repositories/submission.repository.js';
 import * as assignmentRepository from '../repositories/assignment.repository.js';
 import * as courseRepository from '../repositories/course.repository.js';
+import Submission from '../models/Submission.js';
+import Assignment from '../models/Assignment.js';
+import Course from '../models/Course.js';
 
 const normalizeAttachments = (attachments) => {
   if (!attachments) {
@@ -62,143 +65,85 @@ const ensureSubmissionBelongsToAssignment = (submission, assignmentId) => {
   }
 };
 
-export const submitAssignment = async (
-  courseId,
-  assignmentId,
-  studentId,
-  payload
-) => {
-  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
-  ensureStudentEnrolled(course, studentId);
-
-  const existingSubmission = await submissionRepository.findByAssignmentAndStudent(
-    assignmentId,
-    studentId
-  );
-
-  if (existingSubmission) {
-    throw new AppError('Submission already exists. Update the existing record instead.', 400);
+export const submitAssignment = async (assignmentId, studentId, data) => {
+  const assignment = await Assignment.findById(assignmentId);
+  if (!assignment) {
+    throw new AppError('Assignment not found', 404);
   }
 
-  const { content, attachments } = validateSubmissionPayload(payload);
+  const course = await Course.findById(assignment.course);
+  if (!course.students.includes(studentId)) {
+    throw new AppError('You are not enrolled in this course', 403);
+  }
 
-  const submission = await submissionRepository.create({
+  let submission = await Submission.findOne({
     assignment: assignmentId,
     student: studentId,
-    content,
-    attachments,
   });
 
-  return submissionRepository.findById(submission.id);
-};
-
-export const getSubmissions = async (courseId, assignmentId, user) => {
-  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
-
-  if (user.role === 'professor') {
-    ensureProfessorOwnership(course, user.id);
-    return submissionRepository.findByAssignmentId(assignmentId);
+  if (submission) {
+    submission.content = data.content || submission.content;
+    submission.attachments = data.attachments || submission.attachments;
+  } else {
+    submission = new Submission({
+      assignment: assignmentId,
+      student: studentId,
+      ...data,
+    });
   }
 
+  await submission.save();
+  return submission;
+};
+
+export const getSubmissions = async (assignmentId, user) => {
   if (user.role === 'student') {
-    ensureStudentEnrolled(course, user.id);
-    const submission = await submissionRepository.findByAssignmentAndStudent(
-      assignmentId,
-      user.id
-    );
-
-    return submission ? [submission] : [];
+    return await Submission.find({
+      assignment: assignmentId,
+      student: user.id,
+    });
   }
-
-  throw new AppError('User role not permitted for this action', 403);
+  return await Submission.find({ assignment: assignmentId });
 };
 
-export const getSubmissionById = async (
-  courseId,
-  assignmentId,
-  submissionId,
-  user
-) => {
-  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
-  const submission = await submissionRepository.findById(submissionId);
-  ensureSubmissionBelongsToAssignment(submission, assignmentId);
-
-  if (user.role === 'professor') {
-    ensureProfessorOwnership(course, user.id);
-    return submission;
+export const getSubmissionById = async (submissionId, user) => {
+  const submission = await Submission.findById(submissionId);
+  if (!submission) {
+    throw new AppError('Submission not found', 404);
   }
 
-  if (user.role === 'student') {
-    if (submission.student?.toString() !== user.id) {
-      throw new AppError('User not authorized', 401);
-    }
-    ensureStudentEnrolled(course, user.id);
-    return submission;
+  if (
+    user.role === 'student' &&
+    submission.student.toString() !== user.id
+  ) {
+    throw new AppError('You are not authorized to view this submission', 403);
   }
 
-  throw new AppError('User role not permitted for this action', 403);
+  return submission;
 };
 
-export const updateSubmission = async (
-  courseId,
-  assignmentId,
-  submissionId,
-  studentId,
-  payload
-) => {
-  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
-  ensureStudentEnrolled(course, studentId);
-
-  const submission = await submissionRepository.findById(submissionId);
-  ensureSubmissionBelongsToAssignment(submission, assignmentId);
-
-  if (submission.student?.toString() !== studentId) {
-    throw new AppError('User not authorized', 401);
-  }
-
-  const { content, attachments } = validateSubmissionPayload(payload);
-
-  await submissionRepository.updateById(submissionId, {
-    content,
-    attachments,
-    status: 'submitted',
-    grade: null,
-    feedback: null,
-    reviewedAt: null,
-    reviewedBy: null,
+export const reviewSubmission = async (submissionId, professorId, data) => {
+  const submission = await Submission.findById(submissionId).populate({
+    path: 'assignment',
+    populate: {
+      path: 'course',
+    },
   });
 
-  return submissionRepository.findById(submissionId);
-};
-
-export const reviewSubmission = async (
-  courseId,
-  assignmentId,
-  submissionId,
-  professorId,
-  payload
-) => {
-  const { course } = await ensureCourseAndAssignment(courseId, assignmentId);
-  ensureProfessorOwnership(course, professorId);
-
-  const submission = await submissionRepository.findById(submissionId);
-  ensureSubmissionBelongsToAssignment(submission, assignmentId);
-
-  const updatePayload = {
-    status: 'reviewed',
-    reviewedAt: new Date(),
-    reviewedBy: professorId,
-  };
-
-  if (Object.prototype.hasOwnProperty.call(payload, 'grade')) {
-    updatePayload.grade = payload.grade;
+  if (!submission) {
+    throw new AppError('Submission not found', 404);
   }
 
-  if (Object.prototype.hasOwnProperty.call(payload, 'feedback')) {
-    updatePayload.feedback = payload.feedback;
+  if (
+    submission.assignment.course.professor.toString() !== professorId
+  ) {
+    throw new AppError('You are not authorized to review this submission', 403);
   }
 
-  await submissionRepository.updateById(submissionId, updatePayload);
+  submission.grade = data.grade ?? submission.grade;
+  submission.feedback = data.feedback ?? submission.feedback;
+  submission.status = 'graded';
 
-  return submissionRepository.findById(submissionId);
+  await submission.save();
+  return submission;
 };

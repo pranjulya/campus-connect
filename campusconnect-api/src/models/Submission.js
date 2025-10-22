@@ -19,11 +19,11 @@ const submissionSchema = new mongoose.Schema(
     attachments: [
       {
         type: String,
-        trim: true,
       },
     ],
     grade: {
       type: Number,
+      min: 0,
     },
     feedback: {
       type: String,
@@ -31,21 +31,14 @@ const submissionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['submitted', 'reviewed'],
+      enum: ['submitted', 'graded'],
       default: 'submitted',
     },
-    reviewedAt: {
-      type: Date,
-    },
-    reviewedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
-
-submissionSchema.index({ assignment: 1, student: 1 }, { unique: true });
 
 const Submission = mongoose.model('Submission', submissionSchema);
 
