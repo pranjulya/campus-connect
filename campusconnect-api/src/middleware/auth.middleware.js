@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import * as userRepository from '../repositories/user.repository.js';
-
+import env from '../config/env.js';
 export const protect = async (req, res, next) => {
   const token = req.header('x-auth-token');
 
@@ -23,6 +23,8 @@ export const protect = async (req, res, next) => {
     }
 
     req.user = { id: user.id, role: user.role };
+    const decoded = jwt.verify(token, env.JWT_SECRET);
+    req.user = decoded.user;
     next();
   } catch (err) {
     res.status(401).json({ msg: 'Token is not valid' });
