@@ -2,6 +2,9 @@ import AppError from '../utils/appError.js';
 import * as submissionRepository from '../repositories/submission.repository.js';
 import * as assignmentRepository from '../repositories/assignment.repository.js';
 import * as courseRepository from '../repositories/course.repository.js';
+import Submission from '../models/Submission.js';
+import Assignment from '../models/Assignment.js';
+import Course from '../models/Course.js';
 
 const normalizeAttachments = (attachments) => {
   if (!attachments) {

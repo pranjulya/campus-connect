@@ -47,6 +47,15 @@ const submissionSchema = new mongoose.Schema(
 
 submissionSchema.index({ assignment: 1, student: 1 }, { unique: true });
 
+      enum: ['submitted', 'graded'],
+      default: 'submitted',
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const Submission = mongoose.model('Submission', submissionSchema);
 
 export default Submission;
