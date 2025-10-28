@@ -43,7 +43,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/courses/:courseId/assignments', assignmentRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/assignments/:assignmentId/submissions', submissionRoutes);
+
 
 // Celebrate error handler
 app.use(errors());

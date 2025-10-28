@@ -31,7 +31,7 @@ const submissionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['submitted', 'reviewed'],
+      enum: ['submitted', 'graded', 'reviewed'],
       default: 'submitted',
     },
     reviewedAt: {
@@ -46,15 +46,6 @@ const submissionSchema = new mongoose.Schema(
 );
 
 submissionSchema.index({ assignment: 1, student: 1 }, { unique: true });
-
-      enum: ['submitted', 'graded'],
-      default: 'submitted',
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
 
 const Submission = mongoose.model('Submission', submissionSchema);
 
