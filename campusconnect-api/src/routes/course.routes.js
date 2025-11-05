@@ -35,9 +35,16 @@ const courseIdSchema = {
   }),
 };
 
+const getCoursesSchema = {
+  [Segments.QUERY]: Joi.object({
+    page: Joi.number().integer().min(1),
+    limit: Joi.number().integer().min(1),
+  }),
+};
+
 router
   .route('/')
-  .get(getCourses)
+  .get(celebrate(getCoursesSchema), getCourses)
   .post(protect, authorizeRoles('professor'), celebrate(createCourseSchema), createCourse);
 router
   .route('/:id')

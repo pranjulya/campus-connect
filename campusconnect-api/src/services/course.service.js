@@ -30,7 +30,7 @@ export const createCourse = async (professorId, { name, description }) => {
   return course;
 };
 
-export const getCourses = () => courseRepository.findAllWithProfessor();
+export const getCourses = (options) => courseRepository.findAll(options);
 
 export const getCourseById = async (courseId) => {
   const course = await courseRepository.findByIdWithRelations(courseId);

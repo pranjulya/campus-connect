@@ -41,9 +41,17 @@ const updateAssignmentSchema = {
   }).min(1),
 };
 
+const getAssignmentsSchema = {
+  [Segments.PARAMS]: courseIdParamSchema[Segments.PARAMS],
+  [Segments.QUERY]: Joi.object({
+    page: Joi.number().integer().min(1),
+    limit: Joi.number().integer().min(1),
+  }),
+};
+
 router
   .route('/')
-  .get(celebrate({ [Segments.PARAMS]: courseIdParamSchema[Segments.PARAMS] }), getAssignments)
+  .get(celebrate(getAssignmentsSchema), getAssignments)
   .post(protect, authorizeRoles('professor'), celebrate(createAssignmentSchema), createAssignment);
 
 router.use('/:assignmentId/submissions', celebrate({ [Segments.PARAMS]: assignmentIdParamSchema[Segments.PARAMS] }), submissionRoutes);

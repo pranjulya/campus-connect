@@ -7,7 +7,9 @@ export const createCourse = asyncHandler(async (req, res) => {
 });
 
 export const getCourses = asyncHandler(async (req, res) => {
-  const courses = await courseService.getCourses();
+  const { page = 1, limit = 10 } = req.query;
+  const options = { page, limit, populate: { path: 'professor', select: 'name email' } };
+  const courses = await courseService.getCourses(options);
   res.json(courses);
 });
 

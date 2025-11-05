@@ -2,8 +2,7 @@ import Course from '../models/Course.js';
 
 export const create = (courseData) => Course.create(courseData);
 
-export const findAllWithProfessor = () =>
-  Course.find().populate('professor', ['name', 'email']);
+export const findAll = (options) => Course.paginate({}, options);
 
 export const findById = (id) => Course.findById(id);
 

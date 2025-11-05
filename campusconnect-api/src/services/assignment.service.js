@@ -46,8 +46,8 @@ export const createAssignment = async (courseId, userId, assignmentData) => {
   return assignment;
 };
 
-export const getAssignmentsByCourse = (courseId) =>
-  assignmentRepository.findByCourseId(courseId);
+export const getAssignmentsByCourse = (courseId, options) =>
+  assignmentRepository.findByCourseId(courseId, options);
 
 export const getAssignmentById = (assignmentId) => ensureAssignmentExists(assignmentId);
 

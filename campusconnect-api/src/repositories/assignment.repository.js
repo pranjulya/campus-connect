@@ -2,7 +2,8 @@ import Assignment from '../models/Assignment.js';
 
 export const create = (assignmentData) => Assignment.create(assignmentData);
 
-export const findByCourseId = (courseId) => Assignment.find({ course: courseId });
+export const findByCourseId = (courseId, options) =>
+  Assignment.paginate({ course: courseId }, options);
 
 export const findById = (id) => Assignment.findById(id);
 
