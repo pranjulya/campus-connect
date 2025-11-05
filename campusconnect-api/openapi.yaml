@@ -4,10 +4,10 @@ info:
   description: API documentation for the Campus Connect platform.
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
-    description: Local development server
+  - url: http://localhost:3000/api/v1
+    description: Default version (v1) of the Campus Connect API
 paths:
-  /api/auth/register:
+  /auth/register:
     post:
       summary: Register a new user
       requestBody:
@@ -33,7 +33,7 @@ paths:
         '400':
           description: Bad request
 
-  /api/auth/login:
+  /auth/login:
     post:
       summary: Login a user
       requestBody:
@@ -56,7 +56,7 @@ paths:
         '401':
           description: Unauthorized
 
-  /api/courses:
+  /courses:
     get:
       summary: Get all courses
       responses:
@@ -84,7 +84,7 @@ paths:
         '403':
           description: Forbidden
 
-  /api/courses/{id}:
+  /courses/{id}:
     put:
       summary: Update a course
       parameters:
@@ -123,7 +123,7 @@ paths:
         '403':
           description: Forbidden
 
-  /api/courses/{courseId}/assignments:
+  /courses/{courseId}/assignments:
     get:
       summary: Get all assignments for a course
       parameters:
@@ -167,7 +167,7 @@ paths:
         '403':
           description: Forbidden
 
-  /api/courses/{courseId}/assignments/{assignmentId}/submissions:
+  /courses/{courseId}/assignments/{assignmentId}/submissions:
     get:
       summary: List submissions for an assignment
       parameters:
@@ -227,7 +227,7 @@ paths:
         '403':
           description: Forbidden
 
-  /api/courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}:
+  /courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}:
     get:
       summary: Get a specific submission
       parameters:
@@ -301,7 +301,7 @@ paths:
         '404':
           description: Submission not found
 
-  /api/courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}/review:
+  /courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}/review:
     patch:
       summary: Review a submission
       parameters:
@@ -341,7 +341,7 @@ paths:
         '404':
           description: Submission not found
 
-  /api/notifications:
+  /notifications:
     get:
       summary: Get notifications for the authenticated user
       responses:
@@ -350,7 +350,7 @@ paths:
         '401':
           description: Unauthorized
 
-  /api/notifications/{notificationId}/read:
+  /notifications/{notificationId}/read:
     patch:
       summary: Mark a notification as read
       parameters:
