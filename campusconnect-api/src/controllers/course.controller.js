@@ -23,6 +23,8 @@ export const updateCourse = asyncHandler(async (req, res) => {
   res.json(course);
 });
 
+import { COURSE_REMOVED_SUCCESSFULLY } from '../utils/constants.js';
+
 export const deleteCourse = asyncHandler(async (req, res) => {
   await courseService.deleteCourse(req.params.id, req.user.id);
   res.json({ msg: 'Course removed successfully!' });

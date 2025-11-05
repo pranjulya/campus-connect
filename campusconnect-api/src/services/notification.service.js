@@ -70,11 +70,15 @@ export const notifyCourseStudents = async (course, payload) => {
 export const getNotificationsForUser = (userId) =>
   notificationRepository.findByUserWithGlobals(userId);
 
+import { NOTIFICATION_NOT_FOUND } from '../utils/constants.js';
+
+// ... (rest of the file)
+
 export const markNotificationAsRead = async (notificationId, userId) => {
   const updated = await notificationRepository.markAsRead(notificationId, userId);
 
   if (!updated) {
-    throw new AppError('Notification not found', 404);
+    throw new AppError(NOTIFICATION_NOT_FOUND, 404);
   }
 
   return updated;

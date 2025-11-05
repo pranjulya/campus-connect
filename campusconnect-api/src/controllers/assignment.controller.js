@@ -40,6 +40,8 @@ export const updateAssignment = asyncHandler(async (req, res) => {
   res.json(assignment);
 });
 
+import { ASSIGNMENT_REMOVED } from '../utils/constants.js';
+
 export const deleteAssignment = asyncHandler(async (req, res) => {
   await assignmentService.deleteAssignment(req.params.assignmentId, req.user.id);
 
