@@ -12,6 +12,7 @@ import notificationRoutes from './routes/notification.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 import logger from './config/logger.js';
 import { ensureUploadsDirs, getUploadsDir } from './config/upload.config.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 
 const app = express();
 
