@@ -24,7 +24,7 @@ describe('Auth API', () => {
 
   it('should register a new user', async () => {
     const res = await request(app)
-      .post('/api/auth/register')
+      .post('/api/v1/auth/register')
       .send({
         name: 'Test User',
         email: 'test@example.com',
@@ -42,7 +42,7 @@ describe('Auth API', () => {
     });
 
     const res = await request(app)
-      .post('/api/auth/register')
+      .post('/api/v1/auth/register')
       .send({
         name: 'Test User',
         email: 'test@example.com',
@@ -55,7 +55,7 @@ describe('Auth API', () => {
 
   it('should login a registered user', async () => {
     await request(app)
-      .post('/api/auth/register')
+      .post('/api/v1/auth/register')
       .send({
         name: 'Test User',
         email: 'test@example.com',
@@ -63,7 +63,7 @@ describe('Auth API', () => {
       });
 
     const res = await request(app)
-      .post('/api/auth/login')
+      .post('/api/v1/auth/login')
       .send({
         email: 'test@example.com',
         password: 'password123',
@@ -75,7 +75,7 @@ describe('Auth API', () => {
 
   it('should not login an unregistered user', async () => {
     const res = await request(app)
-      .post('/api/auth/login')
+      .post('/api/v1/auth/login')
       .send({
         email: 'test@example.com',
         password: 'password123',

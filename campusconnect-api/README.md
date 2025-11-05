@@ -92,19 +92,21 @@ npm test
 
 ## API Endpoints
 
+All endpoints are versioned. The current default version is available under the `/api/v1` prefix (the legacy `/api` prefix is kept as an alias for backward compatibility).
+
 ### Authentication
-- `POST /api/auth/register` - Register a new user.
-- `POST /api/auth/login` - Login and receive a JWT.
+- `POST /api/v1/auth/register` - Register a new user.
+- `POST /api/v1/auth/login` - Login and receive a JWT.
 
 ### Courses
-- `GET /api/courses` - Get all courses.
-- `POST /api/courses` - Create a new course (professors only).
-- `PUT /api/courses/:id` - Update a course (professors only).
-- `DELETE /api/courses/:id` - Delete a course (professors only).
+- `GET /api/v1/courses` - Get all courses.
+- `POST /api/v1/courses` - Create a new course (professors only).
+- `PUT /api/v1/courses/:id` - Update a course (professors only).
+- `DELETE /api/v1/courses/:id` - Delete a course (professors only).
 
 ### Assignments
-- `GET /api/assignments` - Get all assignments for a course.
-- `POST /api/assignments` - Create a new assignment (professors only).
+- `GET /api/v1/courses/:courseId/assignments` - Get all assignments for a course.
+- `POST /api/v1/courses/:courseId/assignments` - Create a new assignment (professors only).
 
 ## Contributing
 
@@ -131,7 +133,7 @@ GitHub Copilot: Of course. Here's a step-by-step explanation of the repository i
 
 3.  **Routing (`routes/`)**:
     *   The request is then passed to the appropriate route handler based on the URL.
-    *   For example, a request to `/api/auth/login` is handled by auth.routes.js, while a request to `/api/courses` is handled by course.routes.js.
+    *   For example, a request to `/api/v1/auth/login` is handled by auth.routes.js, while a request to `/api/v1/courses` is handled by course.routes.js.
 
 4.  **Controllers (`controllers/`)**:
     *   The route handler then calls a specific function in the corresponding controller file.

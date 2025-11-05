@@ -67,7 +67,7 @@ describe('Submission API', () => {
 
   it('should allow a student to submit an assignment', async () => {
     const res = await request(app)
-      .post(`/api/courses/${course._id}/assignments/${assignment._id}/submissions`)
+      .post(`/api/v1/courses/${course._id}/assignments/${assignment._id}/submissions`)
       .set('x-auth-token', studentToken)
       .send({
         content: 'This is my submission.',
@@ -86,7 +86,7 @@ describe('Submission API', () => {
     });
 
     const res = await request(app)
-      .patch(`/api/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
+      .patch(`/api/v1/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
       .set('x-auth-token', professorToken)
       .send({
         grade: 95,
@@ -107,7 +107,7 @@ describe('Submission API', () => {
     });
 
     const res = await request(app)
-      .patch(`/api/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
+      .patch(`/api/v1/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
       .set('x-auth-token', studentToken)
       .send({
         grade: 95,
