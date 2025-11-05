@@ -10,7 +10,7 @@ import assignmentRoutes from './routes/assignment.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 import { errors } from 'celebrate';
-import submissionRoutes from './routes/submission.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 import logger from './config/logger.js';
 
 const app = express();
@@ -43,6 +43,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/courses/:courseId/assignments', assignmentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 
 // Celebrate error handler

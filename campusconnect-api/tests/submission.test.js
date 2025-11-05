@@ -7,6 +7,7 @@ import Course from '../src/models/Course.js';
 import Assignment from '../src/models/Assignment.js';
 import Submission from '../src/models/Submission.js';
 import jwt from 'jsonwebtoken';
+import ActivityLog from '../src/models/ActivityLog.js';
 
 describe('Submission API', () => {
   let mongoServer;
@@ -16,6 +17,7 @@ describe('Submission API', () => {
   let studentToken, professorToken;
 
   beforeAll(async () => {
+    process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
@@ -31,6 +33,7 @@ describe('Submission API', () => {
     await Course.deleteMany({});
     await Assignment.deleteMany({});
     await Submission.deleteMany({});
+    await ActivityLog.deleteMany({});
 
     professor = await User.create({
       name: 'Test Professor',
