@@ -1,6 +1,7 @@
 import express from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { protect, authorizeRoles } from '../middleware/auth.middleware.js';
+import { submissionUpload } from '../middleware/upload.middleware.js';
 import {
   submitAssignment,
   getSubmissions,
@@ -17,11 +18,16 @@ const submissionIdSchema = {
   }),
 };
 
+const attachmentsSchema = Joi.alternatives().try(
+  Joi.array().items(Joi.string()),
+  Joi.string()
+);
+
 const createSubmissionSchema = {
   [Segments.BODY]: Joi.object({
-    content: Joi.string(),
-    attachments: Joi.array().items(Joi.string()),
-  }).or('content', 'attachments'),
+    content: Joi.string().allow('').optional(),
+    attachments: attachmentsSchema.optional(),
+  }),
 };
 
 const reviewSubmissionSchema = {
@@ -36,12 +42,22 @@ router.use(protect);
 router
   .route('/')
   .get(getSubmissions)
-  .post(authorizeRoles('student'), celebrate(createSubmissionSchema), submitAssignment);
+  .post(
+    authorizeRoles('student'),
+    submissionUpload.array('attachments'),
+    celebrate(createSubmissionSchema),
+    submitAssignment
+  );
 
 router
   .route('/:submissionId')
   .get(celebrate(submissionIdSchema), getSubmission)
-  .put(authorizeRoles('student'), celebrate({ ...submissionIdSchema, ...createSubmissionSchema }), updateSubmission);
+  .put(
+    authorizeRoles('student'),
+    submissionUpload.array('attachments'),
+    celebrate({ ...submissionIdSchema, ...createSubmissionSchema }),
+    updateSubmission
+  );
 
 router
   .route('/:submissionId/review')

@@ -12,6 +12,7 @@ import { globalErrorHandler } from './middleware/error.middleware.js';
 import { errors } from 'celebrate';
 import submissionRoutes from './routes/submission.routes.js';
 import logger from './config/logger.js';
+import { ensureUploadsDirs, getUploadsDir } from './config/upload.config.js';
 
 const app = express();
 
@@ -20,6 +21,9 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(mongoSanitize());
 app.use(xss());
+
+ensureUploadsDirs();
+app.use('/uploads', express.static(getUploadsDir()));
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
