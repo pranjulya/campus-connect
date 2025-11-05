@@ -1,6 +1,7 @@
 import AppError from '../utils/appError.js';
 import * as courseRepository from '../repositories/course.repository.js';
 import * as notificationService from './notification.service.js';
+import * as analyticsService from './analytics.service.js';
 
 import { COURSE_NOT_FOUND, USER_NOT_AUTHORIZED, USER_ALREADY_ENROLLED } from '../utils/constants.js';
 
@@ -70,6 +71,19 @@ export const enrollStudent = async (courseId, studentId) => {
     throw new AppError(COURSE_NOT_FOUND, 404);
   }
 
+<<<<<<< HEAD
   // ... (rest of the function)
+=======
+  await notificationService.notifyUsers([studentId], {
+    title: `Enrolled in ${updatedCourse.name}`,
+    message: 'You have been enrolled in a new course.',
+    type: 'course',
+    course: courseId,
+  });
+
+  await analyticsService.recordCourseEnrollment({ courseId, studentId });
+
+  return updatedCourse.students;
+>>>>>>> 3a4393d8bc1130af4f658e05ad205d5f304f9d49
 };
 

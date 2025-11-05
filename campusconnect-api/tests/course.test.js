@@ -18,7 +18,7 @@ describe('Course API Endpoints', () => {
 
   it('should create a new course', async () => {
     const res = await request(app)
-      .post('/api/courses')
+      .post('/api/v1/courses')
       .send({
         name: 'Test Course',
         description: 'This is a test course',
@@ -30,20 +30,20 @@ describe('Course API Endpoints', () => {
   });
 
   it('should get all courses', async () => {
-    const res = await request(app).get('/api/courses');
+    const res = await request(app).get('/api/v1/courses');
     expect(res.statusCode).toEqual(200);
     expect(res.body).toBeInstanceOf(Array);
   });
 
   it('should get a course by ID', async () => {
-    const res = await request(app).get(`/api/courses/${courseId}`);
+    const res = await request(app).get(`/api/v1/courses/${courseId}`);
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('_id', courseId);
   });
 
   it('should update a course', async () => {
     const res = await request(app)
-      .put(`/api/courses/${courseId}`)
+      .put(`/api/v1/courses/${courseId}`)
       .send({
         name: 'Updated Test Course',
       });
@@ -52,14 +52,14 @@ describe('Course API Endpoints', () => {
   });
 
   it('should delete a course', async () => {
-    const res = await request(app).delete(`/api/courses/${courseId}`);
+    const res = await request(app).delete(`/api/v1/courses/${courseId}`);
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('msg', 'Course removed successfully!');
   });
 
   it('should enroll a user in a course', async () => {
     const res = await request(app)
-      .post(`/api/courses/${courseId}/enroll`)
+      .post(`/api/v1/courses/${courseId}/enroll`)
       .send({ userId: 'User ID' });
     expect(res.statusCode).toEqual(200);
     expect(res.body).toBeInstanceOf(Array);

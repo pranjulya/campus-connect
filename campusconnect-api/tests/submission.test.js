@@ -7,6 +7,7 @@ import Course from '../src/models/Course.js';
 import Assignment from '../src/models/Assignment.js';
 import Submission from '../src/models/Submission.js';
 import jwt from 'jsonwebtoken';
+import ActivityLog from '../src/models/ActivityLog.js';
 
 describe('Submission API', () => {
   let mongoServer;
@@ -16,6 +17,7 @@ describe('Submission API', () => {
   let studentToken, professorToken;
 
   beforeAll(async () => {
+    process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
@@ -31,6 +33,7 @@ describe('Submission API', () => {
     await Course.deleteMany({});
     await Assignment.deleteMany({});
     await Submission.deleteMany({});
+    await ActivityLog.deleteMany({});
 
     professor = await User.create({
       name: 'Test Professor',
@@ -64,7 +67,7 @@ describe('Submission API', () => {
 
   it('should allow a student to submit an assignment', async () => {
     const res = await request(app)
-      .post(`/api/courses/${course._id}/assignments/${assignment._id}/submissions`)
+      .post(`/api/v1/courses/${course._id}/assignments/${assignment._id}/submissions`)
       .set('x-auth-token', studentToken)
       .send({
         content: 'This is my submission.',
@@ -83,7 +86,7 @@ describe('Submission API', () => {
     });
 
     const res = await request(app)
-      .patch(`/api/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
+      .patch(`/api/v1/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
       .set('x-auth-token', professorToken)
       .send({
         grade: 95,
@@ -104,7 +107,7 @@ describe('Submission API', () => {
     });
 
     const res = await request(app)
-      .patch(`/api/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
+      .patch(`/api/v1/courses/${course._id}/assignments/${assignment._id}/submissions/${submission._id}/review`)
       .set('x-auth-token', studentToken)
       .send({
         grade: 95,

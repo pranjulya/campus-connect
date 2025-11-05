@@ -5,6 +5,7 @@ import * as courseRepository from '../repositories/course.repository.js';
 import Submission from '../models/Submission.js';
 import Assignment from '../models/Assignment.js';
 import Course from '../models/Course.js';
+import * as analyticsService from './analytics.service.js';
 
 const normalizeAttachments = (attachments) => {
   if (!attachments) {
@@ -81,7 +82,24 @@ export const submitAssignment = async (
     throw new AppError(SUBMISSION_ALREADY_EXISTS, 400);
   }
 
-  // ... (rest of the function)
+  const { content, attachments } = validateSubmissionPayload(payload);
+
+  const submission = await submissionRepository.create({
+    assignment: assignmentId,
+    student: studentId,
+    content,
+    attachments,
+  });
+
+  const hydratedSubmission = await submissionRepository.findById(submission.id);
+
+  await analyticsService.recordAssignmentSubmission({
+    courseId,
+    assignmentId,
+    studentId,
+  });
+
+  return hydratedSubmission;
 };
 
 export const getSubmissions = async (courseId, assignmentId, user) => {
