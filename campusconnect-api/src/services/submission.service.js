@@ -5,6 +5,7 @@ import * as courseRepository from '../repositories/course.repository.js';
 import Submission from '../models/Submission.js';
 import Assignment from '../models/Assignment.js';
 import Course from '../models/Course.js';
+import * as analyticsService from './analytics.service.js';
 
 const normalizeAttachments = (attachments) => {
   if (!attachments) {
@@ -92,7 +93,15 @@ export const submitAssignment = async (
     attachments,
   });
 
-  return submissionRepository.findById(submission.id);
+  const hydratedSubmission = await submissionRepository.findById(submission.id);
+
+  await analyticsService.recordAssignmentSubmission({
+    courseId,
+    assignmentId,
+    studentId,
+  });
+
+  return hydratedSubmission;
 };
 
 export const getSubmissions = async (courseId, assignmentId, user) => {

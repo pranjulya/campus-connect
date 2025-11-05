@@ -1,6 +1,7 @@
 import AppError from '../utils/appError.js';
 import * as courseRepository from '../repositories/course.repository.js';
 import * as notificationService from './notification.service.js';
+import * as analyticsService from './analytics.service.js';
 
 const ensureCourseExists = async (courseId) => {
   const course = await courseRepository.findById(courseId);
@@ -98,6 +99,8 @@ export const enrollStudent = async (courseId, studentId) => {
     type: 'course',
     course: courseId,
   });
+
+  await analyticsService.recordCourseEnrollment({ courseId, studentId });
 
   return updatedCourse.students;
 };
