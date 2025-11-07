@@ -13,6 +13,7 @@ import { globalErrorHandler } from './middleware/error.middleware.js';
 import logger from './config/logger.js';
 import { ensureUploadsDirs, getUploadsDir } from './config/upload.config.js';
 import analyticsRoutes from './routes/analytics.routes.js';
+import userRoutes from './routes/user.routes.js';
 
 const app = express();
 
@@ -52,6 +53,7 @@ apiV1Router.use('/auth', authLimiter, authRoutes);
 apiV1Router.use('/courses/:courseId/assignments', assignmentRoutes);
 apiV1Router.use('/courses', courseRoutes);
 apiV1Router.use('/notifications', notificationRoutes);
+apiV1Router.use('/users', userRoutes);
 
 app.use(apiBasePath, apiV1Router);
 
