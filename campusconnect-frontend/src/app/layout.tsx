@@ -1,25 +1,31 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/header";
+import Sidebar from "@/components/sidebar";
+import Footer from "@/components/footer";
 
-import { QueryProvider } from "@/app/providers/query-provider";
-import { ThemeProvider } from "@/app/providers/theme-provider";
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Campus Connect",
-  description: "Student and faculty portal for managing courses and assignments"
+  description: "A modern campus management system",
 };
 
 export default function RootLayout({
-  children
-}: {
+  children,
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-        <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
-        </ThemeProvider>
+    <html lang="en">
+      <body className={`flex flex-col min-h-screen ${inter.className}`}>
+        <Header />
+        <div className="flex flex-1">
+          <Sidebar />
+          <main className="flex-1 p-4">{children}</main>
+        </div>
+        <Footer />
       </body>
     </html>
   );
