@@ -18,49 +18,54 @@ Campus Connect is a platform designed to streamline communication and collaborat
 - Professors can create and manage courses.
 
 ### Assignments
-- Professors can create assignments for their courses.
+- Professors can create, update, and delete assignments for their courses.
 - Students can view assignments for the courses they are enrolled in.
+
+### Submissions
+- Students can submit (and update) work for an assignment, with optional file attachments (stored under `uploads/submissions/`).
+- Professors can review submissions with a grade and/or feedback.
+
+### Notifications
+- Authenticated users can list their notifications and mark them as read.
+
+### Analytics
+- Enrollment and submission activity is recorded in an `ActivityLog` collection, with a summary service/controller for admins and professors.
 
 ### API Documentation
 - OpenAPI specification available in `openapi.yaml`.
 
 ## Project Structure
 ```
-LICENSE
 campusconnect-api/
+  .env.example
   openapi.yaml
   package.json
   README.md
   src/
     app.js
     server.js
-    config/
-      db.js
-    controllers/
-      assignment.controller.js
-      auth.controller.js
-      course.controller.js
-    middleware/
-      auth.middleware.js
-    models/
-      Assignment.js
-      Course.js
-      User.js
-    routes/
-      assignment.routes.js
-      auth.routes.js
-      course.routes.js
+    config/        # db, env (envalid), logger (winston), upload config
+    controllers/   # analytics, assignment, auth, course, notification, submission, user
+    middleware/    # auth, error, upload (multer), validation
+    models/        # ActivityLog, Assignment, Course, Notification, Submission, User
+    repositories/  # data access per resource
+    routes/        # analytics, assignment, auth, course, notification, submission, user
+    services/      # business logic per resource
+    utils/         # appError, asyncHandler, constants
   tests/
+    analytics.test.js
     auth.test.js
     course.test.js
+    middleware.test.js
+    submission.test.js
 ```
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd campusconnect-api
+   git clone https://github.com/pranjulya/campus-connect.git
+   cd campus-connect/campusconnect-api
    ```
 
 2. Install dependencies:
@@ -101,12 +106,34 @@ All endpoints are versioned. The current default version is available under the 
 ### Courses
 - `GET /api/v1/courses` - Get all courses.
 - `POST /api/v1/courses` - Create a new course (professors only).
+- `GET /api/v1/courses/:id` - Get a single course.
 - `PUT /api/v1/courses/:id` - Update a course (professors only).
 - `DELETE /api/v1/courses/:id` - Delete a course (professors only).
+- `POST /api/v1/courses/:id/enroll` - Enroll in a course (students only).
 
 ### Assignments
 - `GET /api/v1/courses/:courseId/assignments` - Get all assignments for a course.
 - `POST /api/v1/courses/:courseId/assignments` - Create a new assignment (professors only).
+- `GET /api/v1/courses/:courseId/assignments/:assignmentId` - Get a single assignment.
+- `PUT /api/v1/courses/:courseId/assignments/:assignmentId` - Update an assignment (professors only).
+- `DELETE /api/v1/courses/:courseId/assignments/:assignmentId` - Delete an assignment (professors only).
+
+### Submissions
+All submission routes require authentication.
+- `GET /api/v1/courses/:courseId/assignments/:assignmentId/submissions` - List submissions for an assignment.
+- `POST /api/v1/courses/:courseId/assignments/:assignmentId/submissions` - Submit work, with optional `attachments` files (students only).
+- `GET /api/v1/courses/:courseId/assignments/:assignmentId/submissions/:submissionId` - Get a single submission.
+- `PUT /api/v1/courses/:courseId/assignments/:assignmentId/submissions/:submissionId` - Update a submission (students only).
+- `PATCH /api/v1/courses/:courseId/assignments/:assignmentId/submissions/:submissionId/review` - Grade and/or give feedback (professors only).
+
+### Notifications
+All notification routes require authentication.
+- `GET /api/v1/notifications` - List the current user's notifications.
+- `PATCH /api/v1/notifications/:notificationId/read` - Mark a notification as read.
+
+### Users
+- `GET /api/v1/users/me` - Get the current user's profile (authenticated).
+- `GET /api/v1/users/me/courses` - Get the courses the current user is enrolled in (authenticated).
 
 ## Contributing
 
@@ -118,59 +145,3 @@ All endpoints are versioned. The current default version is available under the 
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
-
-GitHub Copilot: Of course. Here's a step-by-step explanation of the repository in simple terms:
-
-### How the Repository Works: A Step-by-Step Guide
-
-1.  **Starting the Application (`server.js`)**:
-    *   The application starts by running the server.js file.
-    *   This file connects to the MongoDB database and starts the web server, making the API accessible.
-
-2.  **Handling Requests (`app.js`)**:
-    *   When a request comes in (e.g., from a web browser or mobile app), it first hits the app.js file.
-    *   This file sets up the basic configuration, including security measures like rate limiting and sanitization to prevent common attacks.
-
-3.  **Routing (`routes/`)**:
-    *   The request is then passed to the appropriate route handler based on the URL.
-    *   For example, a request to `/api/v1/auth/login` is handled by auth.routes.js, while a request to `/api/v1/courses` is handled by course.routes.js.
-
-4.  **Controllers (`controllers/`)**:
-    *   The route handler then calls a specific function in the corresponding controller file.
-    *   The controller contains the main logic for the request. For example, the auth.controller.js has functions for user registration and login.
-
-5.  **Models (`models/`)**:
-    *   The controller interacts with the database through Mongoose models.
-    *   These models define the structure of the data (e.g., what a `User` or `Course` looks like) and provide methods to create, read, update, and delete records.
-
-6.  **Middleware (`middleware/`)**:
-    *   Middleware functions are like checkpoints that a request passes through before reaching the controller.
-    *   For example, the auth.middleware.js checks if a user is logged in before allowing them to access protected routes.
-
-7.  **Sending a Response**:
-    *   Once the controller has processed the request, it sends a response back to the client.
-    *   This response can be data (e.g., a list of courses) or a confirmation message (e.g., "User registered successfully").
-
-### Key Points
-
-*   **Technology Stack**: The project is built with Node.js, Express (a web framework for Node.js), and MongoDB (a NoSQL database).
-*   **Architecture**: It follows a standard RESTful API architecture, which is a common and effective way to build web services.
-*   **Modularity**: The code is well-organized into separate folders for routes, controllers, and models, making it easy to understand and maintain.
-*   **Security**: Basic security features are implemented, including authentication, rate limiting, and input sanitization.
-*   **Testing**: The project includes a suite of tests to ensure that the API works as expected.
-
-### Major Features Implemented So Far
-
-*   **User Authentication**:
-    *   Users can register for a new account and log in.
-    *   The API uses JSON Web Tokens (JWT) to secure endpoints, ensuring that only authenticated users can access certain features.
-*   **Role-Based Access Control**:
-    *   The system supports different user roles (`student`, `professor`, `admin`), which can be used to control access to specific features.
-*   **Course Management**:
-    *   Professors can create, update, and delete courses.
-    *   Students can view and enroll in courses.
-*   **Assignment Management**:
-    *   Professors can create and manage assignments for their courses.
-    *   Students can view the assignments for the courses they are enrolled in.
-*   **API Documentation**:
-    *   The openapi.yaml file provides a detailed specification of all API endpoints, making it easy for other developers to understand and use the API.
