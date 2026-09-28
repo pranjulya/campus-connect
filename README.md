@@ -9,6 +9,12 @@ This repository contains two packages:
 | [`campusconnect-api/`](campusconnect-api/) | Node.js, Express, MongoDB (Mongoose), JWT, Jest | [API README](campusconnect-api/README.md), [`openapi.yaml`](campusconnect-api/openapi.yaml) |
 | [`campusconnect-frontend/`](campusconnect-frontend/) | Next.js 14, React 18, TypeScript, Tailwind CSS | [Frontend README](campusconnect-frontend/README.md) |
 
+## Prerequisites
+
+- **Node.js** 18 or newer (20 LTS recommended)
+- **MongoDB** running locally, or a MongoDB Atlas connection string
+- npm (comes with Node)
+
 ## Quick start
 
 ```bash
@@ -17,17 +23,24 @@ cd campus-connect
 
 # Backend
 cd campusconnect-api
-cp .env.example .env   # set MONGO_URI and JWT_SECRET
+cp .env.example .env   # set MONGO_URI (required) and JWT_SECRET
 npm install
+npm run dev            # API listens on PORT from .env (default 3000)
 
-# Frontend
+# Frontend (second terminal)
 cd ../campusconnect-frontend
-cp .env.example .env.local   # NEXT_PUBLIC_API_BASE_URL defaults to http://localhost:3000/api/v1
+cp .env.example .env.local   # set NEXT_PUBLIC_API_URL=http://localhost:3000/api/v1
 npm install
 npm run dev
 ```
 
-See each package README for how to run and test it.
+`MONGO_URI` is mandatory — the API will not start without it.
+
+### Known issue: backend start scripts
+
+Inside `campusconnect-api/`, `npm start` / `npm run dev` currently invoke `node campusconnect-api/src/server.js` (a monorepo-root path) and the package lacks `"type": "module"`. Until those package fixes land, the documented start commands fail when run from the API directory. Track that as a code fix; the docs above describe the intended workflow.
+
+See each package README for tests and endpoint details.
 
 ## More documentation
 

@@ -21,18 +21,18 @@ The project will include the following key features:
 
 ## Timeline
 
-- **Phase 1 (In Progress):** Core features such as user authentication, course management, and assignment creation.
-- **Phase 2 (Planned):** Assignment submission, grading, and a notification system.
-- **Phase 3 (Future):** Analytics, reporting, and integration with other campus systems.
+- **Phase 1 (Done):** User authentication, course management, and assignment creation.
+- **Phase 2 (Done):** Assignment submission, grading, and the notification system.
+- **Phase 3 (Partial):** Activity is recorded for analytics; the HTTP summary endpoint is not mounted yet. Broader reporting and campus-system integrations remain future work.
 
 ## Team
 
-- **Project Manager:** [Pranjulya Bajpai]
-- **Lead Developer:** [Pranjulya Bajpai]
-- **Backend Developer:** [Pranjulya Bajpai]
-- **Frontend Developer:** [N/A]
-- **QA Engineer:** [N/A]
-- **Database Administrator:** [N/A]
+- **Project Manager:** Pranjulya Bajpai
+- **Lead Developer:** Pranjulya Bajpai
+- **Backend Developer:** Pranjulya Bajpai
+- **Frontend Developer:** —
+- **QA Engineer:** —
+- **Database Administrator:** —
 
 
 ### How the Repository Works: A Step-by-Step Guide
@@ -53,9 +53,9 @@ The project will include the following key features:
     *   The route handler then calls a specific function in the corresponding controller file.
     *   The controller contains the main logic for the request. For example, the auth.controller.js has functions for user registration and login.
 
-5.  **Models (`models/`)**:
-    *   The controller interacts with the database through Mongoose models.
-    *   These models define the structure of the data (e.g., what a `User` or `Course` looks like) and provide methods to create, read, update, and delete records.
+5.  **Services and repositories (`services/`, `repositories/`)**:
+    *   Controllers call service functions for business logic. Services talk to repositories, which use Mongoose models for persistence.
+    *   Models define the shape of the data (for example `User` or `Course`) and are not used directly from controllers.
 
 6.  **Middleware (`middleware/`)**:
     *   Middleware functions are like checkpoints that a request passes through before reaching the controller.
@@ -69,7 +69,7 @@ The project will include the following key features:
 
 *   **Technology Stack**: The project is built with Node.js, Express (a web framework for Node.js), and MongoDB (a NoSQL database).
 *   **Architecture**: It follows a standard RESTful API architecture, which is a common and effective way to build web services.
-*   **Modularity**: The code is well-organized into separate folders for routes, controllers, and models, making it easy to understand and maintain.
+*   **Modularity**: The code is organized into routes, controllers, services, repositories, and models, making it easier to understand and maintain.
 *   **Security**: Basic security features are implemented, including authentication, rate limiting, and input sanitization.
 *   **Testing**: The project includes a suite of tests to ensure that the API works as expected.
 
@@ -87,4 +87,4 @@ The project will include the following key features:
     *   Professors can create and manage assignments for their courses.
     *   Students can view the assignments for the courses they are enrolled in.
 *   **API Documentation**:
-    *   The openapi.yaml file provides a detailed specification of all API endpoints, making it easy for other developers to understand and use the API.
+    *   The `openapi.yaml` file documents the core auth, courses, assignments, submissions, and notifications endpoints. A few live routes (for example enroll, some assignment variants, `/users/me`, and analytics) are not fully covered yet, and the spec has no `securitySchemes` block. Prefer the API README endpoint list for the current surface.

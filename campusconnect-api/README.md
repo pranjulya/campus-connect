@@ -29,7 +29,7 @@ Campus Connect is a platform designed to streamline communication and collaborat
 - Authenticated users can list their notifications and mark them as read.
 
 ### Analytics
-- Enrollment and submission activity is recorded in an `ActivityLog` collection, with a summary service/controller for admins and professors.
+- Enrollment and submission activity is recorded in an `ActivityLog` collection. A summary service/controller exists for admins and professors, but the analytics routes are **not mounted** on the HTTP app yet, so there is no public summary endpoint until that code fix lands.
 
 ### API Documentation
 - OpenAPI specification available in `openapi.yaml`.
