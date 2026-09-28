@@ -29,7 +29,7 @@ Campus Connect is a platform designed to streamline communication and collaborat
 - Authenticated users can list their notifications and mark them as read.
 
 ### Analytics
-- Enrollment and submission activity is recorded in an `ActivityLog` collection. A summary service/controller exists for admins and professors, but the analytics routes are **not mounted** on the HTTP app yet, so there is no public summary endpoint until that code fix lands.
+- Enrollment and submission activity is recorded in an `ActivityLog` collection. Admins and professors can fetch a summary via `GET /api/v1/analytics`.
 
 ### API Documentation
 - OpenAPI specification available in `openapi.yaml`.
@@ -94,6 +94,8 @@ Run the test suite using:
 ```bash
 npm test
 ```
+
+Tests use [mongodb-memory-server](https://github.com/typegoose/mongodb-memory-server), which downloads a MongoDB binary on first run (no local MongoDB needed). `tests/setup-env.js` sets a test `JWT_SECRET`. CI runs the same command from `.github/workflows/ci.yml` at the repo root.
 
 ## API Endpoints
 

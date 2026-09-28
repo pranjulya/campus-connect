@@ -1,18 +1,34 @@
 import express from 'express';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
-import { protect } from '../src/middleware/auth.middleware.js';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { protect, extractToken } from '../src/middleware/auth.middleware.js';
 import { AppError, globalErrorHandler } from '../src/middleware/error.middleware.js';
+import User from '../src/models/User.js';
 
 describe('Auth middleware', () => {
-  const originalSecret = process.env.JWT_SECRET;
+  let mongoServer;
+  let user;
 
-  beforeAll(() => {
-    process.env.JWT_SECRET = 'test-secret';
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    await mongoose.connect(mongoServer.getUri());
   });
 
-  afterAll(() => {
-    process.env.JWT_SECRET = originalSecret;
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+  });
+
+  beforeEach(async () => {
+    await User.deleteMany({});
+    user = await User.create({
+      name: 'Middleware User',
+      email: 'middleware@example.com',
+      password: 'password123',
+      role: 'student',
+    });
   });
 
   const setupApp = () => {
@@ -23,36 +39,58 @@ describe('Auth middleware', () => {
     return app;
   };
 
-  it('returns 401 when no token header is present', async () => {
-    const app = setupApp();
+  const validToken = () =>
+    jwt.sign({ user: { id: user._id.toString() } }, process.env.JWT_SECRET);
 
-    const response = await request(app).get('/protected');
+  it('returns 401 when no token header is present', async () => {
+    const response = await request(setupApp()).get('/protected');
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({ msg: 'No token, authorization denied' });
   });
 
   it('returns 401 when the token verification fails', async () => {
-    const app = setupApp();
-
-    const response = await request(app)
+    const response = await request(setupApp())
       .get('/protected')
-      .set('x-auth-token', 'invalid-token');
+      .set('Authorization', 'Bearer invalid-token');
 
     expect(response.status).toBe(401);
     expect(response.body).toEqual({ msg: 'Token is not valid' });
   });
 
-  it('allows the request through when the token is valid', async () => {
-    const app = setupApp();
-    const token = jwt.sign({ user: { id: 'user-123' } }, process.env.JWT_SECRET);
-
-    const response = await request(app)
+  it('accepts a valid token in the Authorization: Bearer header', async () => {
+    const response = await request(setupApp())
       .get('/protected')
-      .set('x-auth-token', token);
+      .set('Authorization', `Bearer ${validToken()}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ user: { id: 'user-123' } });
+    expect(response.body).toEqual({ user: { id: user._id.toString(), role: 'student' } });
+  });
+
+  it('still accepts the legacy x-auth-token header', async () => {
+    const response = await request(setupApp())
+      .get('/protected')
+      .set('x-auth-token', validToken());
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ user: { id: user._id.toString(), role: 'student' } });
+  });
+
+  it('returns 401 when the user in the token no longer exists', async () => {
+    const token = validToken();
+    await User.deleteMany({});
+
+    const response = await request(setupApp())
+      .get('/protected')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ msg: 'User no longer exists' });
+  });
+
+  it('extractToken ignores non-Bearer Authorization schemes', () => {
+    const req = { header: (name) => ({ authorization: 'Basic abc' })[name] };
+    expect(extractToken(req)).toBeNull();
   });
 });
 

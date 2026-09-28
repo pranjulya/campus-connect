@@ -12,8 +12,12 @@ import {
 
 const router = express.Router({ mergeParams: true });
 
+// mergeParams exposes :courseId and :assignmentId from the parent routers too,
+// so the params schema must validate (or at least allow) them.
 const submissionIdSchema = {
   [Segments.PARAMS]: Joi.object({
+    courseId: Joi.string().hex().length(24).required(),
+    assignmentId: Joi.string().hex().length(24).required(),
     submissionId: Joi.string().hex().length(24).required(),
   }),
 };

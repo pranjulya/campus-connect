@@ -23,7 +23,7 @@ The project will include the following key features:
 
 - **Phase 1 (Done):** User authentication, course management, and assignment creation.
 - **Phase 2 (Done):** Assignment submission, grading, and the notification system.
-- **Phase 3 (Partial):** Activity is recorded for analytics; the HTTP summary endpoint is not mounted yet. Broader reporting and campus-system integrations remain future work.
+- **Phase 3 (Partial):** Activity is recorded for analytics and exposed via `GET /api/v1/analytics`. Broader reporting and campus-system integrations remain future work.
 
 ## Team
 

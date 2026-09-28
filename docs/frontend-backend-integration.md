@@ -25,12 +25,12 @@ This document explains how the Next.js frontend and the Express backend work tog
    - Frontend: copy `campusconnect-frontend/.env.example` to `.env.local`. Set `NEXT_PUBLIC_API_URL` to the backend base including the version prefix (e.g. `http://localhost:3000/api/v1`). The code reads this name; older docs that mentioned `NEXT_PUBLIC_API_BASE_URL` were wrong.
 
 3. **Run the services**
-   - API: `npm run dev` from `campusconnect-api/` (listens on port `3000` by default). See the Known issue in the root README — the package scripts are currently broken until a code fix lands.
+   - API: `npm run dev` from `campusconnect-api/` (listens on port `3000` by default).
    - Frontend: `npm run dev` from `campusconnect-frontend/` (Next.js typically uses `3001` if `3000` is taken)
 
 4. **Cross-Origin Requests**
-   - Feature hooks under `campusconnect-frontend/src/hooks/` each create an Axios instance with `baseURL` from `NEXT_PUBLIC_API_URL` and send `Authorization: Bearer <token>` from the Zustand auth store.
-   - The shared default export in `src/lib/api/client.ts` is a bare Axios instance (no auth interceptor). The API middleware currently expects `x-auth-token`, so header alignment is a known code mismatch.
+   - Feature hooks under `campusconnect-frontend/src/hooks/` use the shared Axios client in `src/lib/api/client.ts`, whose `baseURL` comes from `NEXT_PUBLIC_API_URL` and which sends `Authorization: Bearer <token>` from the Zustand auth store.
+   - The API `protect` middleware accepts that Bearer header (and still accepts the legacy `x-auth-token` header for older clients).
    - If additional CORS configuration is required, update the Express middleware in `campusconnect-api/src/app.js`.
 
 ## Shared Contracts
@@ -40,9 +40,6 @@ This document explains how the Next.js frontend and the Express backend work tog
 
 ## Next Steps
 
-- Align the auth header (`Authorization` vs `x-auth-token`) and centralise the Axios client if desired.
-- Fix the API package start scripts / `"type": "module"` so `npm run dev` works from `campusconnect-api/`.
-- Mount the analytics routes (activity is already recorded; the HTTP summary endpoint is not exposed yet).
 - Add component-level tests with React Testing Library.
 - Keep OpenAPI in sync with the live routes listed in the API README.
 

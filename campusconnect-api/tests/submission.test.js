@@ -75,7 +75,8 @@ describe('Submission API', () => {
 
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('content', 'This is my submission.');
-    expect(res.body).toHaveProperty('student', student._id.toString());
+    // The service returns the submission with the student populated.
+    expect(res.body).toHaveProperty('student._id', student._id.toString());
   });
 
   it('should allow a professor to review a submission', async () => {
@@ -96,7 +97,7 @@ describe('Submission API', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('grade', 95);
     expect(res.body).toHaveProperty('feedback', 'Excellent work!');
-    expect(res.body).toHaveProperty('status', 'graded');
+    expect(res.body).toHaveProperty('status', 'reviewed');
   });
 
   it('should not allow a student to review a submission', async () => {

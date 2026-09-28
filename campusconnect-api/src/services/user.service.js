@@ -1,14 +1,12 @@
-const User = require('../models/User');
-const Course = require('../models/Course');
+import User from '../models/User.js';
+import Course from '../models/Course.js';
 
-const getEnrolledCourses = async (userId) => {
+export const getEnrolledCourses = async (userId) => {
   const courses = await Course.find({ students: userId });
   return courses;
 };
 
-const getMe = async (userId) => {
+export const getMe = async (userId) => {
   const user = await User.findById(userId).select('-password');
   return user;
 };
-
-module.exports = { getEnrolledCourses, getMe };

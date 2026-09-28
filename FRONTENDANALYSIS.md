@@ -10,7 +10,7 @@ The backend is a RESTful API built with Node.js, Express, and MongoDB (via Mongo
 - **Authentication & Authorization**:
   - Endpoints: `POST /api/auth/register`, `POST /api/auth/login` (returns JWT token).
   - Roles: Student, Professor, Admin (enforced via middleware like `protect` and `authorizeRoles`).
-  - Security: JWT tokens in `x-auth-token` header, rate limiting, input validation (Joi via Celebrate), sanitization (xss-clean, mongo-sanitize).
+  - Security: JWT tokens via `Authorization: Bearer` (legacy `x-auth-token` still accepted), rate limiting, input validation (Joi via Celebrate), sanitization (xss-clean, mongo-sanitize).
   - Frontend implication: All protected routes require token storage (e.g., localStorage) and header inclusion. Role-based UI (e.g., hide professor tools for students).
 
 - **Courses**:

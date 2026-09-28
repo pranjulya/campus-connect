@@ -1,3 +1,14 @@
 export const COURSE_NOT_FOUND = 'Course not found';
 export const USER_NOT_AUTHORIZED = 'User not authorized';
 export const USER_ALREADY_ENROLLED = 'User already enrolled';
+export const ASSIGNMENT_NOT_FOUND = 'Assignment not found';
+export const NOTIFICATION_NOT_FOUND = 'Notification not found';
+export const SUBMISSION_REQUIRES_CONTENT_OR_ATTACHMENTS = 'Submission requires content or attachments';
+export const USER_MUST_BE_ENROLLED_TO_SUBMIT = 'User must be enrolled to submit';
+export const SUBMISSION_NOT_FOUND = 'Submission not found';
+export const SUBMISSION_ALREADY_EXISTS = 'Submission already exists. Update the existing record instead.';
+export const USER_ROLE_NOT_PERMITTED = 'User role not permitted for this action';
+export const INVALID_CREDENTIALS = 'Invalid credentials';
+export const USER_ALREADY_EXISTS = 'User already exists';
+export const ASSIGNMENT_REMOVED = 'Assignment removed successfully!';
+export const COURSE_REMOVED_SUCCESSFULLY = 'Course removed successfully!';

@@ -3,15 +3,11 @@ import * as courseRepository from '../repositories/course.repository.js';
 import * as notificationService from './notification.service.js';
 import * as analyticsService from './analytics.service.js';
 
-import { COURSE_NOT_FOUND, USER_NOT_AUTHORIZED, USER_ALREADY_ENROLLED } from '../utils/constants.js';
-
-// ... (rest of the file)
-
 const ensureCourseExists = async (courseId) => {
   const course = await courseRepository.findById(courseId);
 
   if (!course) {
-    throw new AppError(COURSE_NOT_FOUND, 404);
+    throw new AppError('Course not found', 404);
   }
 
   return course;
@@ -19,17 +15,29 @@ const ensureCourseExists = async (courseId) => {
 
 const assertProfessorOwnership = (course, userId) => {
   if (course.professor?.toString() !== userId) {
-    throw new AppError(USER_NOT_AUTHORIZED, 401);
+    throw new AppError('User not authorized', 401);
   }
 };
 
-// ... (rest of the file)
+export const createCourse = async (professorId, { name, description }) => {
+  const course = await courseRepository.create({
+    name,
+    description,
+    professor: professorId,
+  });
+
+  await notificationService.notifyAllStudentsOfNewCourse(course);
+
+  return course;
+};
+
+export const getCourses = (options) => courseRepository.findAll(options);
 
 export const getCourseById = async (courseId) => {
   const course = await courseRepository.findByIdWithRelations(courseId);
 
   if (!course) {
-    throw new AppError(COURSE_NOT_FOUND, 404);
+    throw new AppError('Course not found', 404);
   }
 
   return course;
@@ -46,13 +54,27 @@ export const updateCourse = async (courseId, userId, { name, description }) => {
   });
 
   if (!updatedCourse) {
-    throw new AppError(COURSE_NOT_FOUND, 404);
+    throw new AppError('Course not found', 404);
   }
 
-  // ... (rest of the function)
+  await notificationService.notifyCourseStudents(updatedCourse, {
+    title: `Course updated: ${updatedCourse.name}`,
+    message: 'Course details have been updated.',
+    type: 'course',
+    course: courseId,
+  });
+
+  return updatedCourse;
 };
 
-// ... (rest of the file)
+export const deleteCourse = async (courseId, userId) => {
+  const course = await ensureCourseExists(courseId);
+
+  assertProfessorOwnership(course, userId);
+
+  await courseRepository.deleteById(courseId);
+  await notificationService.cleanupCourseNotifications(courseId);
+};
 
 export const enrollStudent = async (courseId, studentId) => {
   const course = await ensureCourseExists(courseId);
@@ -62,18 +84,15 @@ export const enrollStudent = async (courseId, studentId) => {
   );
 
   if (alreadyEnrolled) {
-    throw new AppError(USER_ALREADY_ENROLLED, 400);
+    throw new AppError('User already enrolled', 400);
   }
 
   const updatedCourse = await courseRepository.addStudent(courseId, studentId);
 
   if (!updatedCourse) {
-    throw new AppError(COURSE_NOT_FOUND, 404);
+    throw new AppError('Course not found', 404);
   }
 
-<<<<<<< HEAD
-  // ... (rest of the function)
-=======
   await notificationService.notifyUsers([studentId], {
     title: `Enrolled in ${updatedCourse.name}`,
     message: 'You have been enrolled in a new course.',
@@ -84,6 +103,4 @@ export const enrollStudent = async (courseId, studentId) => {
   await analyticsService.recordCourseEnrollment({ courseId, studentId });
 
   return updatedCourse.students;
->>>>>>> 3a4393d8bc1130af4f658e05ad205d5f304f9d49
 };
-

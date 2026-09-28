@@ -36,10 +36,6 @@ npm run dev
 
 `MONGO_URI` is mandatory — the API will not start without it.
 
-### Known issue: backend start scripts
-
-Inside `campusconnect-api/`, `npm start` / `npm run dev` currently invoke `node campusconnect-api/src/server.js` (a monorepo-root path) and the package lacks `"type": "module"`. Until those package fixes land, the documented start commands fail when run from the API directory. Track that as a code fix; the docs above describe the intended workflow.
-
 See each package README for tests and endpoint details.
 
 ## More documentation

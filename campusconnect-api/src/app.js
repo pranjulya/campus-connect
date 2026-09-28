@@ -53,6 +53,7 @@ apiV1Router.use('/auth', authLimiter, authRoutes);
 apiV1Router.use('/courses/:courseId/assignments', assignmentRoutes);
 apiV1Router.use('/courses', courseRoutes);
 apiV1Router.use('/notifications', notificationRoutes);
+apiV1Router.use('/analytics', analyticsRoutes);
 apiV1Router.use('/users', userRoutes);
 
 app.use(apiBasePath, apiV1Router);

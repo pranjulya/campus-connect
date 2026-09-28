@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
 import Footer from "@/components/footer";
+import QueryProvider from "@/app/providers/query-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,12 +21,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`flex flex-col min-h-screen ${inter.className}`}>
-        <Header />
-        <div className="flex flex-1">
-          <Sidebar />
-          <main className="flex-1 p-4">{children}</main>
-        </div>
-        <Footer />
+        <QueryProvider>
+          <Header />
+          <div className="flex flex-1">
+            <Sidebar />
+            <main className="flex-1 p-4">{children}</main>
+          </div>
+          <Footer />
+        </QueryProvider>
       </body>
     </html>
   );
