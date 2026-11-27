@@ -45,6 +45,10 @@ const ensureCourseAndAssignment = async (courseId, assignmentId) => {
   return { assignment, course };
 };
 
+// findById populates `student`, so compare ids rather than stringifying the document.
+const ownerId = (submission) =>
+  (submission.student?._id ?? submission.student)?.toString();
+
 const ensureStudentEnrolled = (course, studentId) => {
   const students = course.students ?? [];
   const isEnrolled = students.some((student) => student.toString() === studentId);
@@ -141,7 +145,7 @@ export const getSubmissionById = async (
   }
 
   if (user.role === 'student') {
-    if (submission.student?.toString() !== user.id) {
+    if (ownerId(submission) !== user.id) {
       throw new AppError('User not authorized', 401);
     }
     ensureStudentEnrolled(course, user.id);
@@ -164,7 +168,7 @@ export const updateSubmission = async (
   const submission = await submissionRepository.findById(submissionId);
   ensureSubmissionBelongsToAssignment(submission, assignmentId);
 
-  if (submission.student?.toString() !== studentId) {
+  if (ownerId(submission) !== studentId) {
     throw new AppError('User not authorized', 401);
   }
 
