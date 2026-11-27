@@ -15,3 +15,6 @@ export const updateById = (id, update) =>
   Submission.findByIdAndUpdate(id, update, { new: true });
 
 export const deleteById = (id) => Submission.findByIdAndDelete(id);
+
+export const deleteByAssignmentIds = (assignmentIds) =>
+  Submission.deleteMany({ assignment: { $in: assignmentIds } });
