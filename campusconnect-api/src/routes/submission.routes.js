@@ -36,7 +36,7 @@ const createSubmissionSchema = {
 
 const reviewSubmissionSchema = {
   [Segments.BODY]: Joi.object({
-    grade: Joi.number(),
+    grade: Joi.number().min(0).max(100),
     feedback: Joi.string(),
   }).or('grade', 'feedback'),
 };
