@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import request from 'supertest';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
@@ -79,8 +81,12 @@ describe('Whitespace-only text is rejected', () => {
     const withFile = await request(app)
       .post(submissionsUrl())
       .set('x-auth-token', token(student))
-      .send({ content: '  ', attachments: ['uploads/submissions/a.pdf'] });
+      .field('content', '  ')
+      .attach('attachments', Buffer.from('file body'), 'essay.txt');
     expect(withFile.statusCode).toEqual(201);
+    expect(withFile.body.attachments).toHaveLength(1);
+    expect(withFile.body.attachments[0]).toMatch(/^uploads\/submissions\/.+-essay\.txt$/);
+    fs.rmSync(path.join(process.cwd(), withFile.body.attachments[0]), { force: true });
   });
 
   it('rejects whitespace-only assignment titles and course names', async () => {
