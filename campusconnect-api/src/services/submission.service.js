@@ -22,7 +22,9 @@ const normalizeAttachments = (attachments) => {
 const validateSubmissionPayload = ({ content, attachments } = {}) => {
   const normalizedAttachments = normalizeAttachments(attachments);
 
-  if (!content && normalizedAttachments.length === 0) {
+  const hasContent = typeof content === 'string' && content.trim().length > 0;
+
+  if (!hasContent && normalizedAttachments.length === 0) {
     throw new AppError('Submission requires content or attachments', 400);
   }
 
