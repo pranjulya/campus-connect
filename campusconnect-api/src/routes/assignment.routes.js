@@ -27,7 +27,7 @@ const assignmentIdParamSchema = {
 
 const createAssignmentSchema = {
   [Segments.BODY]: Joi.object({
-    title: Joi.string().required(),
+    title: Joi.string().trim().required(),
     description: Joi.string(),
     dueDate: Joi.date(),
   }),
@@ -35,7 +35,7 @@ const createAssignmentSchema = {
 
 const updateAssignmentSchema = {
   [Segments.BODY]: Joi.object({
-    title: Joi.string(),
+    title: Joi.string().trim(),
     description: Joi.string(),
     dueDate: Joi.date(),
   }).min(1),

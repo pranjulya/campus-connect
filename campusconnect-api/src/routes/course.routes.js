@@ -14,7 +14,7 @@ const router = express.Router();
 
 const createCourseSchema = {
   [Segments.BODY]: Joi.object({
-    name: Joi.string().required(),
+    name: Joi.string().trim().required(),
     description: Joi.string(),
   }),
 };
@@ -24,7 +24,7 @@ const updateCourseSchema = {
     id: Joi.string().hex().length(24).required(),
   }),
   [Segments.BODY]: Joi.object({
-    name: Joi.string(),
+    name: Joi.string().trim(),
     description: Joi.string(),
   }).min(1),
 };
