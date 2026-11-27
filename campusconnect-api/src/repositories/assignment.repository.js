@@ -11,3 +11,8 @@ export const updateById = (id, update) =>
   Assignment.findByIdAndUpdate(id, update, { new: true });
 
 export const deleteById = (id) => Assignment.findByIdAndDelete(id);
+
+export const findIdsByCourseId = async (courseId) =>
+  (await Assignment.find({ course: courseId }).select('_id').lean()).map((doc) => doc._id);
+
+export const deleteByCourseId = (courseId) => Assignment.deleteMany({ course: courseId });

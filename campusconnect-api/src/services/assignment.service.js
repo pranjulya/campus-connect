@@ -1,6 +1,7 @@
 import AppError from '../utils/appError.js';
 import * as assignmentRepository from '../repositories/assignment.repository.js';
 import * as courseRepository from '../repositories/course.repository.js';
+import * as submissionRepository from '../repositories/submission.repository.js';
 import * as notificationService from './notification.service.js';
 
 const ensureCourseOwnership = async (courseId, userId) => {
@@ -86,5 +87,6 @@ export const deleteAssignment = async (assignmentId, userId) => {
   await ensureCourseOwnership(assignment.course, userId);
 
   await assignmentRepository.deleteById(assignmentId);
+  await submissionRepository.deleteByAssignmentIds([assignmentId]);
   await notificationService.cleanupAssignmentNotifications(assignmentId);
 };

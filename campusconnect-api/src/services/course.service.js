@@ -1,5 +1,7 @@
 import AppError from '../utils/appError.js';
 import * as courseRepository from '../repositories/course.repository.js';
+import * as assignmentRepository from '../repositories/assignment.repository.js';
+import * as submissionRepository from '../repositories/submission.repository.js';
 import * as notificationService from './notification.service.js';
 import * as analyticsService from './analytics.service.js';
 
@@ -72,7 +74,11 @@ export const deleteCourse = async (courseId, userId) => {
 
   assertProfessorOwnership(course, userId);
 
+  const assignmentIds = await assignmentRepository.findIdsByCourseId(courseId);
+
   await courseRepository.deleteById(courseId);
+  await submissionRepository.deleteByAssignmentIds(assignmentIds);
+  await assignmentRepository.deleteByCourseId(courseId);
   await notificationService.cleanupCourseNotifications(courseId);
 };
 
