@@ -11,9 +11,10 @@ import assignmentRoutes from './routes/assignment.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 import logger from './config/logger.js';
-import { ensureUploadsDirs, getUploadsDir } from './config/upload.config.js';
+import { ensureUploadsDirs } from './config/upload.config.js';
 import analyticsRoutes from './routes/analytics.routes.js';
 import userRoutes from './routes/user.routes.js';
+import { submissionFilesRouter } from './routes/submission.routes.js';
 
 const app = express();
 
@@ -28,7 +29,8 @@ app.use(mongoSanitize());
 app.use(xss());
 
 ensureUploadsDirs();
-app.use('/uploads', express.static(getUploadsDir()));
+// Submission files are private: served only through an authenticated route.
+app.use('/uploads/submissions', submissionFilesRouter);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

@@ -19,6 +19,14 @@ const normalizeAttachments = (attachments) => {
   return [attachments].filter(Boolean);
 };
 
+// Attachment paths in a request body are client-supplied strings. Trust only files uploaded
+// with this request or already attached to the caller's own submission, so a student can't
+// list someone else's file on their submission to gain access to it.
+const trustedAttachments = (payload = {}, existing = []) => {
+  const allowed = new Set([...(payload.uploadedAttachments ?? []), ...existing]);
+  return normalizeAttachments(payload.attachments).filter((path) => allowed.has(path));
+};
+
 const validateSubmissionPayload = ({ content, attachments } = {}) => {
   const normalizedAttachments = normalizeAttachments(attachments);
 
@@ -88,7 +96,10 @@ export const submitAssignment = async (
     throw new AppError('Submission already exists. Update the existing record instead.', 400);
   }
 
-  const { content, attachments } = validateSubmissionPayload(payload);
+  const { content, attachments } = validateSubmissionPayload({
+    content: payload?.content,
+    attachments: trustedAttachments(payload),
+  });
 
   const submission = await submissionRepository.create({
     assignment: assignmentId,
@@ -172,7 +183,10 @@ export const updateSubmission = async (
     throw new AppError('User not authorized', 401);
   }
 
-  const { content, attachments } = validateSubmissionPayload(payload);
+  const { content, attachments } = validateSubmissionPayload({
+    content: payload?.content,
+    attachments: trustedAttachments(payload, submission.attachments),
+  });
 
   await submissionRepository.updateById(submissionId, {
     content,
@@ -217,4 +231,51 @@ export const reviewSubmission = async (
   await submissionRepository.updateById(submissionId, updatePayload);
 
   return submissionRepository.findById(submissionId);
+};
+
+const SUBMISSION_UPLOAD_PREFIX = 'uploads/submissions/';
+
+/**
+ * Throws a 404 unless `user` may download the stored submission file `filename`:
+ * the submission's student, the professor who owns its course, or an admin.
+ * Unknown and forbidden files are indistinguishable on purpose.
+ */
+export const authorizeSubmissionFileAccess = async (filename, user) => {
+  const notFound = () => new AppError('File not found', 404);
+
+  if (!filename || filename.startsWith('.') || /[\\/]/.test(filename)) {
+    throw notFound();
+  }
+
+  const storedPath = `${SUBMISSION_UPLOAD_PREFIX}${filename}`;
+  const submissions = await Submission.find({
+    attachments: { $in: [storedPath, `/${storedPath}`] },
+  });
+
+  if (submissions.length === 0) {
+    throw notFound();
+  }
+
+  if (user.role === 'admin') {
+    return;
+  }
+
+  if (user.role === 'student') {
+    if (submissions.some((submission) => submission.student.toString() === user.id)) {
+      return;
+    }
+    throw notFound();
+  }
+
+  if (user.role === 'professor') {
+    for (const submission of submissions) {
+      const assignment = await Assignment.findById(submission.assignment);
+      const course = assignment && (await Course.findById(assignment.course));
+      if (course?.professor?.toString() === user.id) {
+        return;
+      }
+    }
+  }
+
+  throw notFound();
 };

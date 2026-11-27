@@ -8,6 +8,7 @@ import {
   getSubmission,
   updateSubmission,
   reviewSubmission,
+  downloadSubmissionFile,
 } from '../controllers/submission.controller.js';
 
 const router = express.Router({ mergeParams: true });
@@ -66,5 +67,15 @@ router
 router
   .route('/:submissionId/review')
   .patch(authorizeRoles('professor'), celebrate({ ...submissionIdSchema, ...reviewSubmissionSchema }), reviewSubmission);
+
+// Mounted at /uploads/submissions so stored attachment paths keep working, behind auth.
+export const submissionFilesRouter = express.Router();
+
+submissionFilesRouter.get(
+  '/:filename',
+  protect,
+  celebrate({ [Segments.PARAMS]: Joi.object({ filename: Joi.string().max(255).required() }) }),
+  downloadSubmissionFile
+);
 
 export default router;

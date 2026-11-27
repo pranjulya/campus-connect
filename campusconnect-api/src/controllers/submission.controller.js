@@ -1,6 +1,6 @@
 import * as submissionService from '../services/submission.service.js';
 import asyncHandler from '../utils/asyncHandler.js';
-import { getSubmissionPublicPath } from '../config/upload.config.js';
+import { getSubmissionPublicPath, getSubmissionUploadsDir } from '../config/upload.config.js';
 
 const parseBodyAttachments = (attachments) => {
   if (!attachments) {
@@ -33,9 +33,12 @@ const buildSubmissionPayload = (req) => {
     ? req.files.map((file) => getSubmissionPublicPath(file.filename))
     : [];
 
+  // Only files that arrived in this request are trusted; the service drops any
+  // other client-supplied path that isn't already on the student's own submission.
   const payload = {
     ...req.body,
     attachments: [...existingAttachments, ...fileAttachments],
+    uploadedAttachments: fileAttachments,
   };
 
   if (payload.attachments.length === 0) {
@@ -101,4 +104,26 @@ export const reviewSubmission = asyncHandler(async (req, res) => {
   );
 
   res.json(submission);
+});
+
+export const downloadSubmissionFile = asyncHandler(async (req, res) => {
+  await submissionService.authorizeSubmissionFileAccess(req.params.filename, req.user);
+
+  res.sendFile(
+    req.params.filename,
+    {
+      root: getSubmissionUploadsDir(),
+      dotfiles: 'deny',
+      headers: {
+        'Content-Disposition': 'attachment',
+        'X-Content-Type-Options': 'nosniff',
+        'Cache-Control': 'private, no-store',
+      },
+    },
+    (err) => {
+      if (err && !res.headersSent) {
+        res.status(404).json({ msg: 'File not found' });
+      }
+    }
+  );
 });
